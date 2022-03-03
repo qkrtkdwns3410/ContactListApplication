@@ -8,6 +8,7 @@ import com.example.contactlistapplication.listener.OnTabItemSelectedListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.orhanobut.logger.Logger;
 
+import android.content.Intent;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -17,10 +18,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 
 public class ContactDetailActivity extends AppCompatActivity implements OnTabItemSelectedListener {
-	  
-	  Fragment1 fragment1;
-	  Fragment2 fragment2;
-	  Fragment3 fragment3;
 	  
 	  BottomNavigationView bottomNavigation;
 	  
@@ -45,26 +42,21 @@ public class ContactDetailActivity extends AppCompatActivity implements OnTabIte
 			nameTV.setText(contactName);
 			contactTV.setText(contactNumber);
 			
-			fragment1 = new Fragment1();
-			fragment2 = new Fragment2();
-			fragment3 = new Fragment3();
-			
 			bottomNavigation = findViewById(R.id.bottomNavi);
 			bottomNavigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
 				  @Override
 				  public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 						switch (item.getItemId()) {
 							  case R.id.star:
-									getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment1).commit();
-									Toast.makeText(getApplicationContext(), "즐겨찾기가 눌림", Toast.LENGTH_SHORT).show();
 									
 									return true;
 							  case R.id.edit:
-									getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment2).commit();
+									Intent intent = new Intent(ContactDetailActivity.this, ContactEditActivity.class);
+									intent.putExtra("name", contactName);
+									intent.putExtra("number", contactNumber);
 									
-									return true;
+									startActivity(intent);
 							  case R.id.share:
-									getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment3).commit();
 									
 									return true;
 						}

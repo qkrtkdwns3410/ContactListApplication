@@ -14,7 +14,7 @@
         android:id="@+id/edit"
         app:showAsAction="ifRoom"
         android:icon="@drawable/baseline_mode_edit_black_24dp"
-        
+        android:enabled="true"
         android:title="@string/edit"
         />
     
@@ -28,7 +28,6 @@
     <item
         android:id="@+id/more_see"
         android:icon="@drawable/outline_more_vert_black_24dp"
-        
         android:title="@string/more"
         app:showAsAction="ifRoom"
         />
