@@ -1,21 +1,21 @@
-package com.example.contactlistapplication;
+package com.example.contactlistapplication.adapter;
 
+import java.nio.file.FileAlreadyExistsException;
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.TreeMap;
 
 import com.amulyakhare.textdrawable.TextDrawable;
+import com.bumptech.glide.load.model.stream.QMediaStoreUriLoader;
+import com.example.contactlistapplication.activity.ContactDetailActivity;
 import com.example.contactlistapplication.DTO.ContactsModal;
+import com.example.contactlistapplication.R;
 
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
@@ -34,39 +34,39 @@ import androidx.recyclerview.widget.RecyclerView;
  */
 public class ContactsRVAdapter extends RecyclerView.Adapter<ContactsRVAdapter.ViewHolder> {
 	  
-	  private Context context;
-	  private ArrayList<ContactsModal> contactsModalArrayList;
+	  private final Context context;
+	  private final ArrayList<ContactsModal> contactsModalArrayList;
 	  
 	  public ContactsRVAdapter(Context context, ArrayList<ContactsModal> contactsModalArrayList) {
 			this.context = context;
 			this.contactsModalArrayList = contactsModalArrayList;
 	  }
 	  
-	  
-	  
 	  @NonNull
 	  @Override
 	  public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-			return new ContactsRVAdapter.ViewHolder(LayoutInflater.from(context).inflate(R.layout.contacts_rv_items, parent, true));
+			LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+			View itemView = inflater.inflate(R.layout.contacts_rv_items, parent, false);
+			return new ViewHolder(itemView);
 	  }
 	  
 	  @Override
 	  public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 			ContactsModal modal = contactsModalArrayList.get(position);
-		 
+			
 			//뷰홀더에 텍스트 설정
-			holder.contactTextView.setText(modal.getContactName());
-		 
+			holder.contactTextView.setText(modal.getUserName());
+			
 			Random rnd = new Random();
 			int color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
-		 
+			
 			TextDrawable drawable2 = TextDrawable.builder()
 				.beginConfig()
 				.width(100)
 				.height(100)
 				.endConfig()
 				.buildRound(modal.getUserName().substring(0, 1), color);
-		  
+			
 			//TextDrawable 설정을 해당 이미지뷰에 설정합니다.
 			holder.contactImageView.setImageDrawable(drawable2);
 			
@@ -76,7 +76,7 @@ public class ContactsRVAdapter extends RecyclerView.Adapter<ContactsRVAdapter.Vi
 						Intent intent = new Intent(context, ContactDetailActivity.class);
 						intent.putExtra("name", modal.getUserName());
 						intent.putExtra("contact", modal.getContactName());
-					 
+						
 						context.startActivity(intent);
 				  }
 			});
@@ -88,8 +88,8 @@ public class ContactsRVAdapter extends RecyclerView.Adapter<ContactsRVAdapter.Vi
 	  }
 	  
 	  public class ViewHolder extends RecyclerView.ViewHolder {
-			private ImageView contactImageView;
-			private TextView contactTextView;
+			private final ImageView contactImageView;
+			private final TextView contactTextView;
 			
 			public ViewHolder(@NonNull View itemView) {
 				  super(itemView);
