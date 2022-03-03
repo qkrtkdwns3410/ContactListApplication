@@ -173,6 +173,7 @@ public class ContactEditActivity extends AppCompatActivity {
 			Logger.d("cursor : " + cursor);
 			
 			if (cursor == null || cursor.getCount() == 0) {
+				  Logger.d("cursor 뭐냐");
 				  Logger.d("cursor : " + cursor);
 				  return null;
 			}
