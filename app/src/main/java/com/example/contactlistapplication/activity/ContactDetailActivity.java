@@ -1,9 +1,6 @@
 package com.example.contactlistapplication.activity;
 
 import com.example.contactlistapplication.R;
-import com.example.contactlistapplication.fragment.Fragment1;
-import com.example.contactlistapplication.fragment.Fragment2;
-import com.example.contactlistapplication.fragment.Fragment3;
 import com.example.contactlistapplication.listener.OnTabItemSelectedListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.orhanobut.logger.Logger;

@@ -90,6 +90,7 @@
                     android:hint="연락처 번호가 적히는 곳입니다."
                     android:background="@null"
                     />
+            
             </LinearLayout >
         
         
@@ -101,7 +102,6 @@
             android:orientation="vertical"
             android:background="@color/white"
             android:layout_marginTop="10dp"
-            
             >
             
             <LinearLayout
@@ -118,7 +118,6 @@
                     android:background="@drawable/outline_email_indigo_a400_24dp"
                     android:padding="5dp"
                     android:layout_margin="5dp"
-                    
                     />
                 
                 <EditText
@@ -130,6 +129,7 @@
                     android:hint="이메일"
                     android:background="@null"
                     />
+            
             </LinearLayout >
         
         
@@ -192,6 +192,7 @@
             >
             
             <Button
+                android:id="@+id/idBtnCancel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="취소"
@@ -201,14 +202,15 @@
                 />
             
             <Button
+                android:id="@+id/idBtnSave"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="저장"
                 android:textSize="18sp"
                 android:background="@android:color/transparent"
                 android:layout_weight="1"
-                
                 />
+        
         </LinearLayout >
     </LinearLayout >
 
