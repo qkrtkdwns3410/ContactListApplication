@@ -11,7 +11,9 @@ import com.pedro.library.AutoPermissions;
 import com.pedro.library.AutoPermissionsListener;
 
 import android.annotation.SuppressLint;
+import android.database.ContentObserver;
 import android.database.Cursor;
+import android.os.Handler;
 import android.provider.ContactsContract;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -45,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements AutoPermissionsLi
 			
 			getContacts();
 			
+			getContentResolver().registerContentObserver(ContactsContract.Contacts.CONTENT_URI, false, phoneObserver);
 	  }
 	  
 	  //리사이클러 뷰 >리니어레이아웃을 가진 어댑터 아이템 장착
@@ -69,6 +72,26 @@ public class MainActivity extends AppCompatActivity implements AutoPermissionsLi
 			Toast.makeText(this, "허용된 권한의 개수" + permissions.length, Toast.LENGTH_SHORT).show();
 			
 	  }
+	  
+	  @Override
+	  protected void onDestroy() {
+			super.onDestroy();
+			
+			getContentResolver().unregisterContentObserver(phoneObserver);
+	  }
+	  
+	  private ContentObserver phoneObserver = new ContentObserver(new Handler()) {
+			@Override
+			public boolean deliverSelfNotifications() {
+				  return super.deliverSelfNotifications();
+			}
+			
+			@Override
+			public void onChange(boolean selfChange) {
+				  super.onChange(selfChange);
+				  getContacts();
+			}
+	  };
 	  
 	  @SuppressLint("Range")
 	  private void getContacts() {

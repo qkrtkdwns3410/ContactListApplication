@@ -2,6 +2,9 @@ package com.example.contactlistapplication.activity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.SimpleTimeZone;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.example.contactlistapplication.R;
 import com.orhanobut.logger.Logger;
@@ -14,8 +17,10 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.OperationApplicationException;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Handler;
 import android.os.RemoteException;
 import android.provider.ContactsContract;
 import android.telephony.PhoneNumberUtils;
@@ -25,6 +30,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -45,6 +51,7 @@ public class ContactEditActivity extends AppCompatActivity {
 	  private Uri selectedContactUri;
 	  
 	  @Override
+	  
 	  protected void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
 			setContentView(R.layout.activity_contact_edit);
@@ -111,55 +118,15 @@ public class ContactEditActivity extends AppCompatActivity {
 										  // editIntent.setDataAndType(selectedContactUri, ContactsContract.Contacts.CONTENT_ITEM_TYPE);
 										  // editIntent.putExtra("finishActivityOnSaveCompleted", true);
 										  // startActivity(editIntent);
-										  String[] items = {ContactsContract.CommonDataKinds.Phone.RAW_CONTACT_ID,
-											  ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME};
 										  
-										  String phoneNumber = phone;
-										  String phoneNumberFormatNumber = PhoneNumberUtils.formatNumber(phoneNumber);
+										  updateContact(name, phone, email, String.valueOf(currentId));
 										  
-										  //RawContactId를 가져올 where문 > Phone 정보를
-										  String rawContactWhere =
-											  ContactsContract.CommonDataKinds.Phone.NUMBER + " IN('" + phoneNumber + "', " + phoneNumberFormatNumber + "') ";
+										  Intent callBackIntent = new Intent();
+										  callBackIntent.putExtra("name", name);
+										  callBackIntent.putExtra("number", phone);
+										  setResult(RESULT_OK, callBackIntent);
 										  
-										  Cursor cursor = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, items, rawContactWhere,
-											  null, null);
-										  
-										  cursor.moveToFirst();
-										  @SuppressLint("Range") int rawContactId = cursor.getInt(
-											  cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.RAW_CONTACT_ID));
-										  
-										  ArrayList<ContentProviderOperation> ops = new ArrayList<>();
-										  String where = ContactsContract.Data.CONTACT_ID + " =? AND  " + ContactsContract.Contacts.Data.MIMETYPE + " = ?";
-										  
-										  //이름정보 변경
-										  if (!name.equals("")) {
-												String[] nameParams = new String[] {
-													ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE
-												};
-												Cursor nameCursor =
-													getContentResolver().query(ContactsContract.Data.CONTENT_URI, null, where, nameParams, null);
-												
-												//edit if exits
-												if (nameCursor.getCount() > 0) {
-													  ops.add(
-														  ContentProviderOperation.newUpdate(ContactsContract.Data.CONTENT_URI)
-															  .withValue(where, nameParams)
-															  .withValue(ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME, name).build());
-													  
-												} else {
-													  ContentValues contentValues = new ContentValues();
-													  contentValues.put(ContactsContract.Data.RAW_CONTACT_ID, rawContactId);
-													  contentValues.put(ContactsContract.Data.MIMETYPE,
-														  ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE);
-													  contentValues.put(ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME, name);
-													  
-													  ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
-														  .withValues(contentValues)
-														  .build());
-												}
-										  }
-										  
-										  modifyContacts(idIndex);
+										  finish();
 									}
 									
 							  } catch (Exception e) {
@@ -177,11 +144,127 @@ public class ContactEditActivity extends AppCompatActivity {
 			});
 	  }
 	  
-	  private void modifyContacts(int idIndex) {
-			ArrayList<ContentProviderOperation> operationArrayList = new ArrayList<>();
+	  public boolean updateContact(String name, String number, String email, String ContactId) {
+			Logger.d("name  " + name);
+			Logger.d("number  " + number);
+			Logger.d("email  " + email);
+			Logger.d("ContactId  " + ContactId);
 			
-			ContentProviderOperation opt = operationArrayList.get(idIndex);
+			boolean success = true;
+			String phnumexp = "^[0-9]*$";
 			
+			try {
+				  name = name.trim();
+				  email = email.trim();
+				  number = number.trim();
+				  Logger.d("name  " + name);
+				  Logger.d("number  " + number);
+				  Logger.d("email  " + email);
+				  
+				  if (name.equals("") && number.equals("") && email.equals("")) {
+						success = false;
+				  } else if ((!number.equals("")) && (!match(number, phnumexp))) {
+						success = false;
+				  } else if ((!email.equals("")) && (!isEmailValid(email))) {
+						success = false;
+				  } else {
+						ContentResolver contentResolver = getContentResolver();
+						
+						String where = ContactsContract.Data.CONTACT_ID + " = ? AND " + ContactsContract.Data.MIMETYPE + " = ?";
+						
+						String[] emailParams = new String[] {ContactId, ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE};
+						String[] nameParams = new String[] {ContactId, ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE};
+						String[] numberParams = new String[] {ContactId, ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE};
+						
+						ArrayList<android.content.ContentProviderOperation> ops = new ArrayList<android.content.ContentProviderOperation>();
+						
+						if (!email.equals("")) {
+							  Logger.d("이메일 쿼리");
+							  ops.add(android.content.ContentProviderOperation.newUpdate(android.provider.ContactsContract.Data.CONTENT_URI)
+								  .withSelection(where, emailParams)
+								  .withValue(ContactsContract.CommonDataKinds.Email.DATA, email)
+								  .build());
+						}
+						
+						if (!name.equals("")) {
+							  Logger.d("이름 쿼리");
+							  
+							  ops.add(android.content.ContentProviderOperation.newUpdate(android.provider.ContactsContract.Data.CONTENT_URI)
+								  .withSelection(where, nameParams)
+								  .withValue(ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME, name)
+								  .build());
+						}
+						
+						if (!number.equals("")) {
+							  Logger.d("넘버 쿼리");
+							  
+							  ops.add(android.content.ContentProviderOperation.newUpdate(android.provider.ContactsContract.Data.CONTENT_URI)
+								  .withSelection(where, numberParams)
+								  .withValue(ContactsContract.CommonDataKinds.Phone.NUMBER, number)
+								  .build());
+						}
+						contentResolver.applyBatch(ContactsContract.AUTHORITY, ops);
+				  }
+			} catch (Exception e) {
+				  e.printStackTrace();
+				  success = false;
+			}
+			return success;
+	  }
+	  // To get COntact Ids of all contact use the below method
+	  
+	  /**
+	   * @return arraylist containing id's  of all contacts <br/>
+	   *         empty arraylist if no contacts exist <br/><br/>
+	   * <b>Note: </b>This method requires permission <b>android.permission.READ_CONTACTS</b>
+	   */
+	  public ArrayList<String> getAllConactIds() {
+			ArrayList<String> contactList = new ArrayList<String>();
+			
+			Cursor cursor = managedQuery(ContactsContract.Contacts.CONTENT_URI, null, null, null, "display_name ASC");
+			
+			if (cursor != null) {
+				  if (cursor.moveToFirst()) {
+						do {
+							  @SuppressLint("Range") int _id = cursor.getInt(cursor.getColumnIndex("_id"));
+							  contactList.add("" + _id);
+							  
+						}
+						while (cursor.moveToNext());
+				  }
+			}
+			
+			return contactList;
+	  }
+	  
+	  private boolean isEmailValid(String email) {
+			String emailAddress = email.toString().trim();
+			if (emailAddress == null)
+				  return false;
+			else if (emailAddress.equals(""))
+				  return false;
+			else if (emailAddress.length() <= 6)
+				  return false;
+			else {
+				  String expression = "^[a-z][a-z|0-9|]*([_][a-z|0-9]+)*([.][a-z|0-9]+([_][a-z|0-9]+)*)?@[a-z][a-z|0-9|]*\\.([a-z][a-z|0-9]*(\\.[a-z][a-z|0-9]*)?)$";
+				  CharSequence inputStr = emailAddress;
+				  Pattern pattern = Pattern.compile(expression,
+					  Pattern.CASE_INSENSITIVE);
+				  Matcher matcher = pattern.matcher(inputStr);
+				  if (matcher.matches())
+						return true;
+				  else
+						return false;
+			}
+	  }
+	  
+	  private boolean match(String stringToCompare, String regularExpression) {
+			boolean success = false;
+			Pattern pattern = Pattern.compile(regularExpression);
+			Matcher matcher = pattern.matcher(stringToCompare);
+			if (matcher.matches())
+				  success = true;
+			return success;
 	  }
 	  
 }
