@@ -1,6 +1,7 @@
 package com.example.contactlistapplication.activity;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import com.example.contactlistapplication.R;
 import com.orhanobut.logger.Logger;
@@ -8,9 +9,16 @@ import com.orhanobut.logger.Logger;
 import android.annotation.SuppressLint;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
+import android.content.OperationApplicationException;
 import android.database.Cursor;
+import android.net.Uri;
+import android.os.RemoteException;
 import android.provider.ContactsContract;
+import android.telephony.PhoneNumberUtils;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -23,6 +31,18 @@ import android.os.Bundle;
 public class ContactEditActivity extends AppCompatActivity {
 	  private EditText nameEdit, phoneEdit, emailEdit, groupEdit;
 	  private Button btnCancel, btnSave;
+	  // The Cursor that contains the Contact row
+	  private Cursor mCursor;
+	  // The index of the lookup key column in the cursor
+	  private int lookupKeyIndex;
+	  // The index of the contact's _ID value
+	  private int idIndex;
+	  // The lookup key from the Cursor
+	  private String currentLookupKey;
+	  // The _ID value from the Cursor
+	  private long currentId;
+	  // A content URI pointing to the contact
+	  private Uri selectedContactUri;
 	  
 	  @Override
 	  protected void onCreate(Bundle savedInstanceState) {
@@ -50,139 +70,118 @@ public class ContactEditActivity extends AppCompatActivity {
 						Logger.d("phone + " + phone);
 						Logger.d("email + " + email);
 						
-						String oldName = getIntent().getStringExtra("name");
-						String oldPhoneNumber = getIntent().getStringExtra("number");
+						String oldName = ContactEditActivity.this.getIntent().getStringExtra("name");
+						String oldPhoneNumber = ContactEditActivity.this.getIntent().getStringExtra("number");
 						Logger.d("oldPhoneNumber + " + oldPhoneNumber);
 						
 						if (TextUtils.isEmpty(name) && TextUtils.isEmpty(email) && TextUtils.isEmpty(phone)) {
 							  Toast.makeText(ContactEditActivity.this, "데이터를 입력해주세요", Toast.LENGTH_SHORT).show();
 						} else {
-							  updateNameAndNumber(ContactEditActivity.this, oldPhoneNumber, name, phone);
-							  finish();
+							  try {
+									
+									/*
+									 * Once the user has selected a contact to edit,
+									 * this gets the contact's lookup key and _ID values from the
+									 * cursor and creates the necessary URI.
+									 */
+									
+									mCursor = ContactEditActivity.this.getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, null,
+										ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " = ?", new String[] {oldName}, null);
+									
+									while (mCursor.moveToNext()) {
+										  
+										  // Gets the lookup key column index
+										  lookupKeyIndex = mCursor.getColumnIndex(ContactsContract.Contacts.LOOKUP_KEY);
+										  // Gets the lookup key value
+										  currentLookupKey = mCursor.getString(lookupKeyIndex);
+										  Logger.d("currentLookupKey : " + currentLookupKey);
+										  
+										  // Gets the _ID column index
+										  idIndex = mCursor.getColumnIndex(ContactsContract.Contacts._ID);
+										  Logger.d("idIndex : " + idIndex);
+										  
+										  currentId = mCursor.getLong(idIndex);
+										  Logger.d("currentId :" + currentId);
+										  
+										  selectedContactUri =
+											  ContactsContract.Contacts.getLookupUri(currentId, currentLookupKey);
+										  Logger.d("selectedContactUri  " + selectedContactUri);
+										  
+										  // Intent editIntent = new Intent(Intent.ACTION_EDIT);
+										  // editIntent.setDataAndType(selectedContactUri, ContactsContract.Contacts.CONTENT_ITEM_TYPE);
+										  // editIntent.putExtra("finishActivityOnSaveCompleted", true);
+										  // startActivity(editIntent);
+										  String[] items = {ContactsContract.CommonDataKinds.Phone.RAW_CONTACT_ID,
+											  ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME};
+										  
+										  String phoneNumber = phone;
+										  String phoneNumberFormatNumber = PhoneNumberUtils.formatNumber(phoneNumber);
+										  
+										  //RawContactId를 가져올 where문 > Phone 정보를
+										  String rawContactWhere =
+											  ContactsContract.CommonDataKinds.Phone.NUMBER + " IN('" + phoneNumber + "', " + phoneNumberFormatNumber + "') ";
+										  
+										  Cursor cursor = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, items, rawContactWhere,
+											  null, null);
+										  
+										  cursor.moveToFirst();
+										  @SuppressLint("Range") int rawContactId = cursor.getInt(
+											  cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.RAW_CONTACT_ID));
+										  
+										  ArrayList<ContentProviderOperation> ops = new ArrayList<>();
+										  String where = ContactsContract.Data.CONTACT_ID + " =? AND  " + ContactsContract.Contacts.Data.MIMETYPE + " = ?";
+										  
+										  //이름정보 변경
+										  if (!name.equals("")) {
+												String[] nameParams = new String[] {
+													ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE
+												};
+												Cursor nameCursor =
+													getContentResolver().query(ContactsContract.Data.CONTENT_URI, null, where, nameParams, null);
+												
+												//edit if exits
+												if (nameCursor.getCount() > 0) {
+													  ops.add(
+														  ContentProviderOperation.newUpdate(ContactsContract.Data.CONTENT_URI)
+															  .withValue(where, nameParams)
+															  .withValue(ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME, name).build());
+													  
+												} else {
+													  ContentValues contentValues = new ContentValues();
+													  contentValues.put(ContactsContract.Data.RAW_CONTACT_ID, rawContactId);
+													  contentValues.put(ContactsContract.Data.MIMETYPE,
+														  ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE);
+													  contentValues.put(ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME, name);
+													  
+													  ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+														  .withValues(contentValues)
+														  .build());
+												}
+										  }
+										  
+										  modifyContacts(idIndex);
+									}
+									
+							  } catch (Exception e) {
+									e.printStackTrace();
+							  }
 							  
 						}
 				  }
 			});
 			
-			btnCancel.setOnClickListener(new View.OnClickListener() {
-				  @Override
-				  public void onClick(View view) {
-						Logger.d("취소를 눌렀습니다.");
-						
-						finish();
-				  }
+			btnCancel.setOnClickListener(view -> {
+				  Logger.d("취소를 눌렀습니다.");
+				  
+				  finish();
 			});
 	  }
 	  
-	  private final static String[] DATA_COLS = {
-		  ContactsContract.Data.MIMETYPE,
-		  ContactsContract.Data.DATA1,
-		  ContactsContract.Data.CONTACT_ID
-	  };
-	  
-	  public boolean updateNameAndNumber(final Context context, String number, String newName, String newNumber) {
-			Logger.d("number + " + number);
-			Logger.d("context + " + context);
-			Logger.d("newName + " + newName);
-			Logger.d("newNumber + " + newNumber);
+	  private void modifyContacts(int idIndex) {
+			ArrayList<ContentProviderOperation> operationArrayList = new ArrayList<>();
 			
-			if (context == null || number == null || number.trim().isEmpty()) {
-				  
-				  return false;
-			}
+			ContentProviderOperation opt = operationArrayList.get(idIndex);
 			
-			if (newNumber != null && newNumber.trim().isEmpty()) {
-				  
-				  newNumber = null;
-			}
-			
-			if (newNumber == null) {
-				  
-				  return false;
-			}
-			
-			String contactId = getContactId(context, number);
-			Logger.d("contactId + " + contactId);
-			
-			if (contactId == null) {
-				  return false;
-			}
-			
-			//selection for name
-			String where = String.format(
-				"%s = '%s' AND %s = ?",
-				DATA_COLS[0], //mimetype
-				ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE,
-				DATA_COLS[2]/*contactId*/);
-			
-			String[] args = {contactId};
-			
-			ArrayList<ContentProviderOperation> operations = new ArrayList<>();
-			
-			operations.add(
-				ContentProviderOperation.newUpdate(ContactsContract.Data.CONTENT_URI)
-					.withSelection(where, args)
-					.withValue(ContactsContract.CommonDataKinds.StructuredName.GIVEN_NAME, newName)
-					.build()
-			);
-			
-			//change selection for number
-			where = String.format(
-				"%s = '%s' AND %s = ?",
-				DATA_COLS[0],//mimetype
-				ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE,
-				DATA_COLS[1]/*number*/);
-			
-			//change args for number
-			args[0] = number;
-			
-			operations.add(
-				ContentProviderOperation.newUpdate(ContactsContract.Data.CONTENT_URI)
-					.withSelection(where, args)
-					.withValue(DATA_COLS[1]/*number*/, newNumber)
-					.build()
-			);
-			
-			try {
-				  ContentProviderResult[] results = getContentResolver().applyBatch(ContactsContract.AUTHORITY, operations);
-				  
-				  for (ContentProviderResult result : results) {
-						
-						Log.d("Update Result", result.toString());
-				  }
-				  
-				  return true;
-			} catch (Exception e) {
-				  e.printStackTrace();
-			}
-			
-			return false;
 	  }
 	  
-	  public static String getContactId(Context context, String number) {
-			Logger.d("context : " + context);
-			Logger.d("number : " + number);
-			
-			Cursor cursor = context.getContentResolver().query(
-				ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-				new String[] {ContactsContract.CommonDataKinds.Phone.CONTACT_ID, ContactsContract.CommonDataKinds.Phone.NUMBER},
-				ContactsContract.CommonDataKinds.Phone.NUMBER + "=?",
-				new String[] {number},
-				null
-			);
-			Logger.d("cursor : " + cursor);
-			
-			if (cursor == null || cursor.getCount() == 0) {
-				  Logger.d("cursor 뭐냐");
-				  Logger.d("cursor : " + cursor);
-				  return null;
-			}
-			
-			cursor.moveToFirst();
-			
-			@SuppressLint("Range") String id = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID));
-			Logger.d("id : " + id);
-			cursor.close();
-			return id;
-	  }
 }

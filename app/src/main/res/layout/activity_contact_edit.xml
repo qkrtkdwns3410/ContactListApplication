@@ -46,6 +46,7 @@
             
             <EditText
                 android:id="@+id/idEdtName"
+                android:inputType="textPersonName"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:paddingStart="10dp"
@@ -83,6 +84,7 @@
                 
                 <EditText
                     android:id="@+id/idEdtPhoneNumber"
+                    android:inputType="phone"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:paddingStart="10dp"
@@ -122,6 +124,7 @@
                 
                 <EditText
                     android:id="@+id/idEdtEmail"
+                    android:inputType="textEmailAddress"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:paddingStart="10dp"
@@ -163,6 +166,7 @@
                 
                 <EditText
                     android:id="@+id/idEdtGroup"
+                    android:inputType="text"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:paddingStart="10dp"

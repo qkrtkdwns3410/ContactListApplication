@@ -29,6 +29,7 @@ public class ContactDetailActivity extends AppCompatActivity implements OnTabIte
 			
 			contactName = getIntent().getStringExtra("name");
 			Logger.d("d.contactName=" + contactName);
+			
 			contactNumber = getIntent().getStringExtra("contact");
 			Logger.d("d.contactNumber = " + contactNumber);
 			
@@ -40,26 +41,23 @@ public class ContactDetailActivity extends AppCompatActivity implements OnTabIte
 			contactTV.setText(contactNumber);
 			
 			bottomNavigation = findViewById(R.id.bottomNavi);
-			bottomNavigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-				  @Override
-				  public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-						switch (item.getItemId()) {
-							  case R.id.star:
-									
-									return true;
-							  case R.id.edit:
-									Intent intent = new Intent(ContactDetailActivity.this, ContactEditActivity.class);
-									intent.putExtra("name", contactName);
-									intent.putExtra("number", contactNumber);
-									
-									startActivity(intent);
-							  case R.id.share:
-									
-									return true;
-						}
-						
-						return false;
+			bottomNavigation.setOnNavigationItemSelectedListener(item -> {
+				  switch (item.getItemId()) {
+						case R.id.star:
+							  
+							  return true;
+						case R.id.edit:
+							  Intent intent = new Intent(ContactDetailActivity.this, ContactEditActivity.class);
+							  intent.putExtra("name", contactName);
+							  intent.putExtra("number", contactNumber);
+							  
+							  startActivity(intent);
+						case R.id.share:
+							  
+							  return true;
 				  }
+				  
+				  return false;
 			});
 			
 	  }
