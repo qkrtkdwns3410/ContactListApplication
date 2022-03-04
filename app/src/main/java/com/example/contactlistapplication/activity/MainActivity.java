@@ -32,12 +32,12 @@ public class MainActivity extends AppCompatActivity implements AutoPermissionsLi
 	  
 	  @Override
 	  protected void onCreate(Bundle savedInstanceState) {
+			Logger.d("onCreate 실행  :");
 			super.onCreate(savedInstanceState);
 			setContentView(R.layout.activity_main);
 			
 			contactsModalArrayList = new ArrayList<>();
 			contactRV = findViewById(R.id.idRVContacts);
-			loadingPB = findViewById(R.id.idPBLoading);
 			
 			//리사이클러 뷰를 초기화
 			prepareContactRV();
@@ -52,11 +52,22 @@ public class MainActivity extends AppCompatActivity implements AutoPermissionsLi
 	  
 	  //리사이클러 뷰 >리니어레이아웃을 가진 어댑터 아이템 장착
 	  private void prepareContactRV() {
+			contactsModalArrayList = new ArrayList<>();
 			contactsRVAdapter = new ContactsRVAdapter(this, contactsModalArrayList);
 			
 			contactRV.setLayoutManager(new LinearLayoutManager(this));
 			
 			contactRV.setAdapter(contactsRVAdapter);
+	  }
+	  
+	  //리사이클러뷰 초기화 셋팅
+	  public void recyclerViewInitSetting() {
+			
+			LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+			contactRV.setLayoutManager(linearLayoutManager);
+			contactsRVAdapter = new ContactsRVAdapter(this, contactsModalArrayList);
+			contactRV.setAdapter(contactsRVAdapter);
+			
 	  }
 	  
 	  //권한 못받는 불쌍한 친구들
@@ -89,6 +100,7 @@ public class MainActivity extends AppCompatActivity implements AutoPermissionsLi
 			@Override
 			public void onChange(boolean selfChange) {
 				  super.onChange(selfChange);
+				  prepareContactRV();
 				  getContacts();
 			}
 	  };
@@ -109,11 +121,10 @@ public class MainActivity extends AppCompatActivity implements AutoPermissionsLi
 						//폰넘버를 가진 친구라면!
 						if (hasPhoneNumber > 0) {
 							  contactId = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
-							  Logger.d("contactId = " + contactId);
-							  
 							  displayName = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-							  Logger.d("displayName + " + displayName);
-							  
+							  if (displayName.contains("xcccc")) {
+									Logger.d("displayName  " + displayName);
+							  }
 							  //전화나 문자를 위한 Cursor
 							  Cursor phoneCursor = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
 								  ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=?"
@@ -124,7 +135,6 @@ public class MainActivity extends AppCompatActivity implements AutoPermissionsLi
 							  if (phoneCursor.moveToNext()) {
 									String phoneNumber = phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
 									contactsModalArrayList.add(new ContactsModal(displayName, phoneNumber));
-									Logger.d("contactsModalArrayList size= " + contactsModalArrayList.size());
 									
 							  }
 							  //폰 커서를 닫습니다.
@@ -135,7 +145,6 @@ public class MainActivity extends AppCompatActivity implements AutoPermissionsLi
 			}
 			cursor.close();
 			
-			loadingPB.setVisibility(View.GONE);
 			//리사이클러 뷰에서 notifyDataSetChanged는 리스트의 크기와 아이템이 둘 다 변경되는 경우에 사용하면 된다.
 			contactsRVAdapter.notifyDataSetChanged();
 			

@@ -53,6 +53,7 @@ public class ContactEditActivity extends AppCompatActivity {
 	  @Override
 	  
 	  protected void onCreate(Bundle savedInstanceState) {
+			Logger.d("onCreate 실행  :");
 			super.onCreate(savedInstanceState);
 			setContentView(R.layout.activity_contact_edit);
 			
@@ -123,7 +124,10 @@ public class ContactEditActivity extends AppCompatActivity {
 										  
 										  Intent callBackIntent = new Intent();
 										  callBackIntent.putExtra("name", name);
+										  Logger.d("name  " + name);
 										  callBackIntent.putExtra("number", phone);
+										  Logger.d("phone  " + phone);
+										  
 										  setResult(RESULT_OK, callBackIntent);
 										  
 										  finish();
@@ -203,6 +207,7 @@ public class ContactEditActivity extends AppCompatActivity {
 								  .withValue(ContactsContract.CommonDataKinds.Phone.NUMBER, number)
 								  .build());
 						}
+						Logger.d("ops  " + ops);
 						contentResolver.applyBatch(ContactsContract.AUTHORITY, ops);
 				  }
 			} catch (Exception e) {

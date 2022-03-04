@@ -33,6 +33,8 @@ public class ContactDetailActivity extends AppCompatActivity implements OnTabIte
 	  
 	  @Override
 	  protected void onCreate(Bundle savedInstanceState) {
+			Logger.d("onCreate 실행  :");
+			
 			super.onCreate(savedInstanceState);
 			setContentView(R.layout.activity_contact_detail);
 			
@@ -62,7 +64,7 @@ public class ContactDetailActivity extends AppCompatActivity implements OnTabIte
 							  intent.putExtra("name", contactName);
 							  intent.putExtra("number", contactNumber);
 							  
-							  startActivity(intent);
+							  startActivityForResult(intent, 101);
 						case R.id.share:
 							  
 							  return true;
@@ -80,58 +82,43 @@ public class ContactDetailActivity extends AppCompatActivity implements OnTabIte
 						contactNumber = getIntent().getStringExtra("contact");
 						Logger.d("d.contactNumber = " + contactNumber);
 						
-						contactTV = findViewById(R.id.idTVPhone);
-						nameTV = findViewById(R.id.idTVContactName);
-						contactIV = findViewById(R.id.idIVContact);
-						
-						nameTV.setText(contactName);
-						contactTV.setText(contactNumber);
-						
 						swipeRefreshLayout.setRefreshing(false);
 				  }
 			});
 	  }
 	  
-	  onActivityResult(requestCode:Int, resultCode:Int, data:Intent?) {
-			super.onActivityResult(requestCode, resultCode, data)
-			
-			if (resultCode == Activity.RESULT_OK) {
-				  Log.d("MDM", "In onActivityResult")
-				  when(requestCode) {
-						SUBACTIITY_REQUEST_CODE -> {
-							  val name = data ?.getStringExtra("returnValue")
-							  textView.text = name
-						}
-				  }
+	  @Override
+	  public void onTabSelected(int position) {
+			if (position == 0) {
+				  bottomNavigation.setSelectedItemId(R.id.star);
+			} else if (position == 1) {
+				  bottomNavigation.setSelectedItemId(R.id.edit);
+			} else if (position == 2) {
+				  bottomNavigation.setSelectedItemId(R.id.share);
 			}
-			
-			@Override
-			public void onTabSelected ( int position){
-				  if (position == 0) {
-						bottomNavigation.setSelectedItemId(R.id.star);
-				  } else if (position == 1) {
-						bottomNavigation.setSelectedItemId(R.id.edit);
-				  } else if (position == 2) {
-						bottomNavigation.setSelectedItemId(R.id.share);
-				  }
-			}
-			
 	  }
 	  
 	  @Override
 	  protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 			super.onActivityResult(requestCode, resultCode, data);
 			
-			if (requestCode == RESULT_OK) {
-				  Logger.d("requestCode  " + requestCode);
-				  if (requestCode == EDIT_REQUEST_CODE) {
-						String name = data.getStringExtra("name");
-						String number = data.getStringExtra("number");
-						
-						nameTV.setText(name);
-						contactTV.setText(number);
-						
+			if (requestCode == EDIT_REQUEST_CODE) {
+				  
+				  if (resultCode != RESULT_OK) {
+						Logger.d("리턴됨  ");
+						return;
 				  }
+				  
+				  Logger.d("requestCode  " + requestCode);
+				  
+				  String name = data.getStringExtra("name");
+				  Logger.d("name  " + name);
+				  String number = data.getStringExtra("number");
+				  Logger.d("number  " + number);
+				  
+				  nameTV.setText(name);
+				  contactTV.setText(number);
+				  
 			}
 	  }
 }
