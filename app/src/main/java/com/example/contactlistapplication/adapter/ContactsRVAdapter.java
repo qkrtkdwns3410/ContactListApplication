@@ -88,7 +88,7 @@ public class ContactsRVAdapter extends RecyclerView.Adapter<ContactsRVAdapter.Vi
 						intent.putExtra("image", modal.getUserImage());
 						intent.putExtra("name", modal.getUserName());
 						intent.putExtra("contact", modal.getContactName());
-						
+						intent.putExtra("myRealID", modal.getContactId());
 						context.startActivity(intent);
 				  }
 			});

@@ -94,6 +94,7 @@ public class MainActivity extends AppCompatActivity implements AutoPermissionsLi
 			inflater.inflate(R.menu.search_menu, menu);
 			MenuItem searchViewItem = menu.findItem(R.id.app_bar_search);
 			final SearchView searchView = (SearchView)MenuItemCompat.getActionView(searchViewItem);
+			
 			searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
 				  @Override
 				  public boolean onQueryTextSubmit(String query) {
@@ -219,7 +220,7 @@ public class MainActivity extends AppCompatActivity implements AutoPermissionsLi
 							  
 							  if (phoneCursor.moveToNext()) {
 									String phoneNumber = phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-									contactsModalArrayList.add(new ContactsModal(displayName, phoneNumber, userImage));
+									contactsModalArrayList.add(new ContactsModal(contactId, displayName, phoneNumber, userImage));
 									
 							  }
 							  //폰 커서를 닫습니다.

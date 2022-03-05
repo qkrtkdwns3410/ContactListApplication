@@ -1,24 +1,23 @@
 package com.example.contactlistapplication.activity;
 
-import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Objects;
 
 import com.example.contactlistapplication.R;
 import com.example.contactlistapplication.listener.OnTabItemSelectedListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.orhanobut.logger.Logger;
 
-import android.app.Activity;
+import android.annotation.SuppressLint;
+import android.content.ContentUris;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.util.Log;
-import android.view.MenuItem;
-import android.widget.FrameLayout;
+import android.provider.ContactsContract;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
@@ -31,160 +30,10 @@ public class ContactDetailActivity extends AppCompatActivity implements OnTabIte
 	  
 	  private BottomNavigationView bottomNavigation;
 	  private SwipeRefreshLayout swipeRefreshLayout;
-	  private FrameLayout container;
 	  
-	  private String contactName, contactNumber;
-	  private Bitmap contactBitmap;
+	  private String contactName, contactNumber, myID;
 	  private TextView contactTV, nameTV;
 	  private CircleImageView contactIV;
-	  
-	  @Override
-	  protected void onResume() {
-			Logger.d("onResume() called");
-			
-			super.onResume();
-			
-			setContentView(R.layout.activity_contact_detail);
-			
-			try {
-				  swipeRefreshLayout = findViewById(R.id.SwipeRefreshLayout);
-				  
-				  contactName = getIntent().getStringExtra("name");
-				  Logger.d("d.contactName=" + contactName);
-				  
-				  contactNumber = getIntent().getStringExtra("contact");
-				  Logger.d("d.contactNumber = " + contactNumber);
-				  //이전의 비트맵 프로필
-				  Bitmap previousBitmap = (Bitmap)getIntent().getExtras().get("image");
-				  //콜백된 이미지
-				  Bitmap editedBitmap = (Bitmap)getIntent().getExtras().get("callBackImage");
-				  
-				  Logger.d("contactBitmap  " + contactBitmap);
-				  
-				  contactTV = findViewById(R.id.idTVPhone);
-				  nameTV = findViewById(R.id.idTVContactName);
-				  contactIV = findViewById(R.id.idIVContact);
-				  
-				  nameTV.setText(contactName);
-				  contactTV.setText(contactNumber);
-				  if (contactBitmap == null) {
-						contactIV.setImageResource(R.drawable.default_image);
-				  } else {
-						contactIV.setImageBitmap(contactBitmap);
-						contactIV.setScaleType(ImageView.ScaleType.CENTER_CROP);
-				  }
-				  bottomNavigation = findViewById(R.id.bottomNavi);
-				  bottomNavigation.setOnNavigationItemSelectedListener(item -> {
-						switch (item.getItemId()) {
-							  case R.id.star:
-									
-									return true;
-							  case R.id.edit:
-									Intent intent = new Intent(ContactDetailActivity.this, ContactEditActivity.class);
-									intent.putExtra("name", contactName);
-									intent.putExtra("number", contactNumber);
-									if (contactBitmap == null) {
-										  intent.putExtra("image", R.drawable.default_image);
-									} else {
-										  intent.putExtra("image", contactBitmap);
-										  
-									}
-									
-									startActivityForResult(intent, 101);
-							  case R.id.share:
-									
-									return true;
-						}
-						
-						return false;
-				  });
-				  
-				  swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-						@Override
-						public void onRefresh() {
-							  contactName = getIntent().getStringExtra("name");
-							  Logger.d("d.contactName=" + contactName);
-							  
-							  contactNumber = getIntent().getStringExtra("contact");
-							  Logger.d("d.contactNumber = " + contactNumber);
-							  
-							  swipeRefreshLayout.setRefreshing(false);
-						}
-				  });
-			} catch (Exception e) {
-				  e.printStackTrace();
-			}
-	  }
-	  
-	  @Override
-	  protected void onCreate(Bundle savedInstanceState) {
-			Logger.d("onCreate() called with: savedInstanceState = [" + savedInstanceState + "]");
-			
-			super.onCreate(savedInstanceState);
-			setContentView(R.layout.activity_contact_detail);
-			
-			swipeRefreshLayout = findViewById(R.id.SwipeRefreshLayout);
-			
-			contactName = getIntent().getStringExtra("name");
-			Logger.d("d.contactName=" + contactName);
-			
-			contactNumber = getIntent().getStringExtra("contact");
-			Logger.d("d.contactNumber = " + contactNumber);
-			contactBitmap = getIntent().getParcelableExtra("image");
-			
-			Logger.d("contactBitmap  " + contactBitmap);
-			
-			contactTV = findViewById(R.id.idTVPhone);
-			nameTV = findViewById(R.id.idTVContactName);
-			contactIV = findViewById(R.id.idIVContact);
-			
-			nameTV.setText(contactName);
-			contactTV.setText(contactNumber);
-			if (contactBitmap == null) {
-				  contactIV.setImageResource(R.drawable.default_image);
-			} else {
-				  contactIV.setImageBitmap(contactBitmap);
-				  contactIV.setScaleType(ImageView.ScaleType.CENTER_CROP);
-			}
-			bottomNavigation = findViewById(R.id.bottomNavi);
-			bottomNavigation.setOnNavigationItemSelectedListener(item -> {
-				  switch (item.getItemId()) {
-						case R.id.star:
-							  
-							  return true;
-						case R.id.edit:
-							  Intent intent = new Intent(ContactDetailActivity.this, ContactEditActivity.class);
-							  intent.putExtra("name", contactName);
-							  intent.putExtra("number", contactNumber);
-							  if (contactBitmap == null) {
-									intent.putExtra("image", R.drawable.default_image);
-							  } else {
-									intent.putExtra("image", contactBitmap);
-									
-							  }
-							  
-							  startActivityForResult(intent, 101);
-						case R.id.share:
-							  
-							  return true;
-				  }
-				  
-				  return false;
-			});
-			
-			swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-				  @Override
-				  public void onRefresh() {
-						contactName = getIntent().getStringExtra("name");
-						Logger.d("d.contactName=" + contactName);
-						
-						contactNumber = getIntent().getStringExtra("contact");
-						Logger.d("d.contactNumber = " + contactNumber);
-						
-						swipeRefreshLayout.setRefreshing(false);
-				  }
-			});
-	  }
 	  
 	  @Override
 	  public void onTabSelected(int position) {
@@ -195,6 +44,70 @@ public class ContactDetailActivity extends AppCompatActivity implements OnTabIte
 			} else if (position == 2) {
 				  bottomNavigation.setSelectedItemId(R.id.share);
 			}
+	  }
+	  
+	  @SuppressLint("Range")
+	  private Bitmap getContactsByID(String contactIdPara) {
+			Logger.d("getContacts() called");
+			Logger.d("contactIdPara  " + contactIdPara);
+			String contactId = "";
+			Bitmap userImage = null;
+			
+			//핸드폰에서 데이터를 들고옵니다.
+			Cursor cursor = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, null, null, null,
+				ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC");
+			
+			if (cursor.getCount() > 0) {
+				  // 카운트가 0 초과라면 cursor를 계속 진행진행 ~~~~~
+				  while (cursor.moveToNext()) {
+						int hasPhoneNumber = Integer.parseInt(cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER)));
+						//폰넘버를 가진 친구라면!
+						if (hasPhoneNumber > 0) {
+							  contactId = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
+							  
+							  if (Objects.equals(contactId, contactIdPara)) {
+									
+									userImage = GetContactPhoto(contactId);
+									
+									return userImage;
+							  }
+							  
+						}
+				  }
+			}
+			cursor.close();
+			return userImage;
+	  }
+	  
+	  private Bitmap GetContactPhoto(String contactID) {
+			
+			Bitmap photo = null;
+			
+			try {
+				  InputStream inputStream = ContactsContract.Contacts.openContactPhotoInputStream(getContentResolver(),
+					  ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, Long.parseLong(contactID)));
+				  
+				  if (inputStream != null) {
+						photo = BitmapFactory.decodeStream(inputStream);
+						
+						//비트맵의 해상도 조절
+						Bitmap.createScaledBitmap(
+							photo
+							, photo.getWidth() * 2
+							, photo.getHeight() * 2
+							, true);
+						
+						Logger.d("photo  " + photo);
+				  } else {
+						return null;
+				  }
+				  inputStream.close();
+				  
+			} catch (IOException e) {
+				  e.printStackTrace();
+			}
+			return photo;
+			
 	  }
 	  
 	  @Override
@@ -215,12 +128,97 @@ public class ContactDetailActivity extends AppCompatActivity implements OnTabIte
 				  String number = data.getStringExtra("number");
 				  Logger.d("number  " + number);
 				  
-				  Bitmap bitmapImageByEdited = data.getParcelableExtra("image");
-				  
+				  String callBackedID = data.getStringExtra("callBackID");
 				  nameTV.setText(name);
 				  contactTV.setText(number);
-				  contactIV.setImageBitmap(bitmapImageByEdited);
+				  contactIV.setImageBitmap(GetContactPhoto(callBackedID));
 				  
 			}
 	  }
+	  
+	  @Override
+	  protected void onCreate(Bundle savedInstanceState) {
+			Logger.d("onCreate() called with: savedInstanceState = [" + savedInstanceState + "]");
+			
+			super.onCreate(savedInstanceState);
+			setContentView(R.layout.activity_contact_detail);
+			
+			swipeRefreshLayout = findViewById(R.id.SwipeRefreshLayout);
+			
+			contactName = getIntent().getStringExtra("name");
+			
+			contactNumber = getIntent().getStringExtra("contact");
+			
+			myID = getIntent().getStringExtra("myRealID");
+			Bitmap bitbit = getContactsByID(myID);
+			
+			contactTV = findViewById(R.id.idTVPhone);
+			nameTV = findViewById(R.id.idTVContactName);
+			contactIV = findViewById(R.id.idIVContact);
+			
+			nameTV.setText(contactName);
+			contactTV.setText(contactNumber);
+			
+			if (bitbit == null) {
+				  contactIV.setImageResource(R.drawable.default_image);
+			} else {
+				  contactIV.setImageBitmap(bitbit);
+				  contactIV.setScaleType(ImageView.ScaleType.CENTER_CROP);
+			}
+			
+			bottomNavigation = findViewById(R.id.bottomNavi);
+			bottomNavigation.setOnNavigationItemSelectedListener(item -> {
+				  switch (item.getItemId()) {
+						case R.id.star:
+							  
+							  return true;
+						case R.id.edit:
+							  Intent intent = new Intent(ContactDetailActivity.this, ContactEditActivity.class);
+							  intent.putExtra("myID", myID);
+							  intent.putExtra("name", contactName);
+							  intent.putExtra("number", contactNumber);
+							  if (bitbit == null) {
+									intent.putExtra("image", R.drawable.default_image);
+							  } else {
+									intent.putExtra("image", bitbit);
+									
+							  }
+							  
+							  startActivityForResult(intent, 101);
+						case R.id.share:
+							  
+							  return true;
+				  }
+				  
+				  return false;
+			});
+			
+			swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+				  @Override
+				  public void onRefresh() {
+						
+						swipeRefreshLayout.setRefreshing(false);
+				  }
+			});
+	  }
+	  
+	  @Override
+	  protected void onDestroy() {
+			Logger.d("onDestroy() called");
+			super.onDestroy();
+	  }
+	  
+	  @Override
+	  protected void onPause() {
+			Logger.d("onPause() called");
+			super.onPause();
+			
+	  }
+	  
+	  @Override
+	  protected void onStop() {
+			Logger.d("onStop() called");
+			super.onStop();
+	  }
+	  
 }

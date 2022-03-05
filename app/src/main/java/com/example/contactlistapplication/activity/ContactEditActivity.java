@@ -47,6 +47,8 @@ public class ContactEditActivity extends AppCompatActivity {
 	  
 	  private static final int GET_GALLERY_IMAGE = 200;
 	  
+	  private String myID;
+	  
 	  private EditText nameEdit, phoneEdit, emailEdit, groupEdit;
 	  private Button btnCancel, btnSave;
 	  
@@ -93,6 +95,8 @@ public class ContactEditActivity extends AppCompatActivity {
 						contactIV.setImageBitmap(bitmapImage);
 				  }
 				  
+				  myID = getIntent().getStringExtra("myID");
+				  
 				  nameEdit.setText(getIntent().getStringExtra("name"));
 				  phoneEdit.setText(getIntent().getStringExtra("number"));
 			} catch (Exception e) {
@@ -114,6 +118,7 @@ public class ContactEditActivity extends AppCompatActivity {
 						Logger.d("name + " + name);
 						Logger.d("phone + " + phone);
 						Logger.d("email + " + email);
+						Logger.d("image  " + image);
 						
 						String oldName = ContactEditActivity.this.getIntent().getStringExtra("name");
 						String oldPhoneNumber = ContactEditActivity.this.getIntent().getStringExtra("number");
@@ -158,16 +163,13 @@ public class ContactEditActivity extends AppCompatActivity {
 										  
 										  updateContact(name, phone, email, image, String.valueOf(currentId));
 										  
-										  //이미지 전달!
-										  ByteArrayOutputStream stream = new ByteArrayOutputStream();
-										  Bitmap bitmapImage = image.getBitmap();
-										  
-										  Intent callBackIntent = new Intent(getApplicationContext(), ContactDetailActivity.class);
+										  Intent callBackIntent = new Intent();
 										  callBackIntent.putExtra("name", name);
 										  Logger.d("name  " + name);
 										  callBackIntent.putExtra("number", phone);
 										  Logger.d("phone  " + phone);
-										  callBackIntent.putExtra("callBackImage", bitmapImage);
+										  callBackIntent.putExtra("callBackID", myID);
+										  
 										  setResult(RESULT_OK, callBackIntent);
 										  
 										  finish();
@@ -194,22 +196,19 @@ public class ContactEditActivity extends AppCompatActivity {
 					+ ContactId + "]");
 			
 			boolean success = true;
-			String phnumexp = "^[0-9]*$";
+			String phnumexp = "/^01([0|1|6|7|8|9])-?([0-9]{3,4})-?([0-9]{4})$/;";
 			
 			try {
 				  name = name.trim();
-				  email = email.trim();
 				  number = number.trim();
-				  
+				  number = number.replace("-", "");
 				  Logger.d("name  " + name);
 				  Logger.d("number  " + number);
-				  Logger.d("email  " + email);
 				  
-				  if (name.equals("") && number.equals("") && email.equals("") && image == null) {
+				  if (name.equals("") && number.equals("")) {
 						success = false;
-				  } else if ((!number.equals("")) && (!match(number, phnumexp))) {
-						success = false;
-				  } else if ((!email.equals("")) && (!isEmailValid(email))) {
+				  } else if ((number.equals(""))) {
+						
 						success = false;
 				  } else {
 						ContentResolver contentResolver = getContentResolver();
@@ -274,36 +273,6 @@ public class ContactEditActivity extends AppCompatActivity {
 			return success;
 	  }
 	  // To get COntact Ids of all contact use the below method
-	  
-	  private boolean isEmailValid(String email) {
-			String emailAddress = email.toString().trim();
-			if (emailAddress == null)
-				  return false;
-			else if (emailAddress.equals(""))
-				  return false;
-			else if (emailAddress.length() <= 6)
-				  return false;
-			else {
-				  String expression = "^[a-z][a-z|0-9|]*([_][a-z|0-9]+)*([.][a-z|0-9]+([_][a-z|0-9]+)*)?@[a-z][a-z|0-9|]*\\.([a-z][a-z|0-9]*(\\.[a-z][a-z|0-9]*)?)$";
-				  CharSequence inputStr = emailAddress;
-				  Pattern pattern = Pattern.compile(expression,
-					  Pattern.CASE_INSENSITIVE);
-				  Matcher matcher = pattern.matcher(inputStr);
-				  if (matcher.matches())
-						return true;
-				  else
-						return false;
-			}
-	  }
-	  
-	  private boolean match(String stringToCompare, String regularExpression) {
-			boolean success = false;
-			Pattern pattern = Pattern.compile(regularExpression);
-			Matcher matcher = pattern.matcher(stringToCompare);
-			if (matcher.matches())
-				  success = true;
-			return success;
-	  }
 	  
 	  //이미지 클릭시 갤러리 호출및 이미지 임시변경! >> 저장누르면 이미지가 최종 변경되어야합니다.
 	  public void modifyImageView(View view) {

@@ -20,10 +20,21 @@ public class ContactsModal {
 	  private String userName;
 	  private String contactName;
 	  
-	  public ContactsModal(String displayName, String phoneNumber, Bitmap userImage) {
+	  private String contactId;
+	  
+	  public ContactsModal(String contactId, String displayName, String phoneNumber, Bitmap userImage) {
 			this.userName = displayName;
 			this.contactName = phoneNumber;
 			this.userImage = userImage;
+			this.contactId = contactId;
+	  }
+	  
+	  public String getContactId() {
+			return contactId;
+	  }
+	  
+	  public void setContactId(String contactId) {
+			this.contactId = contactId;
 	  }
 	  
 	  public Bitmap getUserImage() {
