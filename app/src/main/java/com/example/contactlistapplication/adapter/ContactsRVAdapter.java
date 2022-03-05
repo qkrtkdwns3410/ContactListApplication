@@ -73,14 +73,19 @@ public class ContactsRVAdapter extends RecyclerView.Adapter<ContactsRVAdapter.Vi
 				.height(100)
 				.endConfig()
 				.buildRound(modal.getUserName().substring(0, 1), color);
-			
+			if (modal.getUserImage() != null) {
+				  holder.contactImageView.setImageBitmap(modal.getUserImage());
+			} else {
+				  holder.contactImageView.setImageDrawable(drawable2);
+				  
+			}
 			//TextDrawable 설정을 해당 이미지뷰에 설정합니다.
-			holder.contactImageView.setImageDrawable(drawable2);
 			
 			holder.itemView.setOnClickListener(new View.OnClickListener() {
 				  @Override
 				  public void onClick(View view) {
 						Intent intent = new Intent(context, ContactDetailActivity.class);
+						intent.putExtra("image", modal.getUserImage());
 						intent.putExtra("name", modal.getUserName());
 						intent.putExtra("contact", modal.getContactName());
 						

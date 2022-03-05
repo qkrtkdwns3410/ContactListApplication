@@ -23,17 +23,17 @@
         
         <activity
             android:name=".activity.ContactEditActivity"
-            android:exported="false"
+            android:exported="true"
             >
         
         </activity >
         <activity
             android:name=".activity.ContactDetailActivity"
-            android:exported="false"
+            android:exported="true"
             />
         <activity
             android:name=".fragment.CreateNewActivity"
-            android:exported="false"
+            android:exported="true"
             />
         <activity
             android:name=".activity.MainActivity"

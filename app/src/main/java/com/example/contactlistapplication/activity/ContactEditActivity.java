@@ -1,5 +1,6 @@
 package com.example.contactlistapplication.activity;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.SimpleTimeZone;
@@ -19,10 +20,16 @@ import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.os.RemoteException;
 import android.provider.ContactsContract;
+import android.provider.MediaStore;
 import android.telephony.PhoneNumberUtils;
 import android.text.TextUtils;
 import android.util.Log;
@@ -34,12 +41,18 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ContactEditActivity extends AppCompatActivity {
+	  
+	  private static final int GET_GALLERY_IMAGE = 200;
+	  
 	  private EditText nameEdit, phoneEdit, emailEdit, groupEdit;
 	  private Button btnCancel, btnSave;
 	  
-	  private ImageView contactIV;
+	  private Bitmap bitmapImage;
+	  
+	  private CircleImageView contactIV;
 	  // The Cursor that contains the Contact row
 	  private Cursor mCursor;
 	  // The index of the lookup key column in the cursor
@@ -60,14 +73,33 @@ public class ContactEditActivity extends AppCompatActivity {
 			super.onCreate(savedInstanceState);
 			setContentView(R.layout.activity_contact_edit);
 			
-			contactIV = findViewById(R.id.idIVContact);
-			nameEdit = findViewById(R.id.idEdtName);
-			phoneEdit = findViewById(R.id.idEdtPhoneNumber);
-			emailEdit = findViewById(R.id.idEdtEmail);
-			groupEdit = findViewById(R.id.idEdtGroup);
-			
-			btnSave = findViewById(R.id.idBtnSave);
-			btnCancel = findViewById(R.id.idBtnCancel);
+			try {
+				  contactIV = findViewById(R.id.idIVContact);
+				  nameEdit = findViewById(R.id.idEdtName);
+				  phoneEdit = findViewById(R.id.idEdtPhoneNumber);
+				  //여기는 일단 비워두겠음..
+				  emailEdit = findViewById(R.id.idEdtEmail);
+				  groupEdit = findViewById(R.id.idEdtGroup);
+				  
+				  btnSave = findViewById(R.id.idBtnSave);
+				  btnCancel = findViewById(R.id.idBtnCancel);
+				  
+				  bitmapImage = getIntent().getParcelableExtra("image");
+				  
+				  //기본이미지.. 설정
+				  if (bitmapImage == null) {
+						contactIV.setImageResource(R.drawable.default_image);
+				  } else {
+						contactIV.setImageBitmap(bitmapImage);
+				  }
+				  
+				  nameEdit.setText(getIntent().getStringExtra("name"));
+				  phoneEdit.setText(getIntent().getStringExtra("number"));
+			} catch (Exception e) {
+				  e.printStackTrace();
+			}
+			//세팅
+			//
 			
 			btnSave.setOnClickListener(new View.OnClickListener() {
 				  @Override
@@ -77,6 +109,7 @@ public class ContactEditActivity extends AppCompatActivity {
 						String name = nameEdit.getText().toString();
 						String phone = phoneEdit.getText().toString();
 						String email = emailEdit.getText().toString();
+						BitmapDrawable image = (BitmapDrawable)contactIV.getDrawable();
 						
 						Logger.d("name + " + name);
 						Logger.d("phone + " + phone);
@@ -84,7 +117,6 @@ public class ContactEditActivity extends AppCompatActivity {
 						
 						String oldName = ContactEditActivity.this.getIntent().getStringExtra("name");
 						String oldPhoneNumber = ContactEditActivity.this.getIntent().getStringExtra("number");
-						Logger.d("oldPhoneNumber + " + oldPhoneNumber);
 						
 						if (TextUtils.isEmpty(name) && TextUtils.isEmpty(email) && TextUtils.isEmpty(phone)) {
 							  Toast.makeText(ContactEditActivity.this, "데이터를 입력해주세요", Toast.LENGTH_SHORT).show();
@@ -124,14 +156,18 @@ public class ContactEditActivity extends AppCompatActivity {
 										  // editIntent.putExtra("finishActivityOnSaveCompleted", true);
 										  // startActivity(editIntent);
 										  
-										  updateContact(name, phone, email, String.valueOf(currentId));
+										  updateContact(name, phone, email, image, String.valueOf(currentId));
 										  
-										  Intent callBackIntent = new Intent();
+										  //이미지 전달!
+										  ByteArrayOutputStream stream = new ByteArrayOutputStream();
+										  Bitmap bitmapImage = image.getBitmap();
+										  
+										  Intent callBackIntent = new Intent(getApplicationContext(), ContactDetailActivity.class);
 										  callBackIntent.putExtra("name", name);
 										  Logger.d("name  " + name);
 										  callBackIntent.putExtra("number", phone);
 										  Logger.d("phone  " + phone);
-										  
+										  callBackIntent.putExtra("callBackImage", bitmapImage);
 										  setResult(RESULT_OK, callBackIntent);
 										  
 										  finish();
@@ -152,11 +188,10 @@ public class ContactEditActivity extends AppCompatActivity {
 			});
 	  }
 	  
-	  public boolean updateContact(String name, String number, String email, String ContactId) {
-			Logger.d("name  " + name);
-			Logger.d("number  " + number);
-			Logger.d("email  " + email);
-			Logger.d("ContactId  " + ContactId);
+	  public boolean updateContact(String name, String number, String email, BitmapDrawable image, String ContactId) {
+			Logger.d(
+				"updateContact() called with: name = [" + name + "], number = [" + number + "], email = [" + email + "], image = [" + image + "], ContactId = ["
+					+ ContactId + "]");
 			
 			boolean success = true;
 			String phnumexp = "^[0-9]*$";
@@ -165,11 +200,12 @@ public class ContactEditActivity extends AppCompatActivity {
 				  name = name.trim();
 				  email = email.trim();
 				  number = number.trim();
+				  
 				  Logger.d("name  " + name);
 				  Logger.d("number  " + number);
 				  Logger.d("email  " + email);
 				  
-				  if (name.equals("") && number.equals("") && email.equals("")) {
+				  if (name.equals("") && number.equals("") && email.equals("") && image == null) {
 						success = false;
 				  } else if ((!number.equals("")) && (!match(number, phnumexp))) {
 						success = false;
@@ -183,6 +219,7 @@ public class ContactEditActivity extends AppCompatActivity {
 						String[] emailParams = new String[] {ContactId, ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE};
 						String[] nameParams = new String[] {ContactId, ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE};
 						String[] numberParams = new String[] {ContactId, ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE};
+						String[] imageParams = new String[] {ContactId, ContactsContract.CommonDataKinds.Photo.CONTENT_ITEM_TYPE};
 						
 						ArrayList<android.content.ContentProviderOperation> ops = new ArrayList<android.content.ContentProviderOperation>();
 						
@@ -195,6 +232,7 @@ public class ContactEditActivity extends AppCompatActivity {
 						}
 						
 						if (!name.equals("")) {
+							  
 							  Logger.d("이름 쿼리");
 							  
 							  ops.add(android.content.ContentProviderOperation.newUpdate(android.provider.ContactsContract.Data.CONTENT_URI)
@@ -211,7 +249,22 @@ public class ContactEditActivity extends AppCompatActivity {
 								  .withValue(ContactsContract.CommonDataKinds.Phone.NUMBER, number)
 								  .build());
 						}
-						Logger.d("ops  " + ops);
+						
+						if (image != null) {
+							  Logger.d("이미지 쿼리");
+							  Bitmap newImage = image.getBitmap();
+							  Logger.d("newImage  " + newImage);
+							  
+							  ByteArrayOutputStream out = new ByteArrayOutputStream();
+							  newImage.compress(Bitmap.CompressFormat.JPEG, 100, out);
+							  
+							  byte[] b = out.toByteArray();
+							  
+							  ops.add(android.content.ContentProviderOperation.newUpdate(android.provider.ContactsContract.Data.CONTENT_URI)
+								  .withSelection(where, imageParams)
+								  .withValue(ContactsContract.CommonDataKinds.Photo.DATA15, b)
+								  .build());
+						}
 						contentResolver.applyBatch(ContactsContract.AUTHORITY, ops);
 				  }
 			} catch (Exception e) {
@@ -221,30 +274,6 @@ public class ContactEditActivity extends AppCompatActivity {
 			return success;
 	  }
 	  // To get COntact Ids of all contact use the below method
-	  
-	  /**
-	   * @return arraylist containing id's  of all contacts <br/>
-	   *         empty arraylist if no contacts exist <br/><br/>
-	   * <b>Note: </b>This method requires permission <b>android.permission.READ_CONTACTS</b>
-	   */
-	  public ArrayList<String> getAllConactIds() {
-			ArrayList<String> contactList = new ArrayList<String>();
-			
-			Cursor cursor = managedQuery(ContactsContract.Contacts.CONTENT_URI, null, null, null, "display_name ASC");
-			
-			if (cursor != null) {
-				  if (cursor.moveToFirst()) {
-						do {
-							  @SuppressLint("Range") int _id = cursor.getInt(cursor.getColumnIndex("_id"));
-							  contactList.add("" + _id);
-							  
-						}
-						while (cursor.moveToNext());
-				  }
-			}
-			
-			return contactList;
-	  }
 	  
 	  private boolean isEmailValid(String email) {
 			String emailAddress = email.toString().trim();
@@ -276,4 +305,22 @@ public class ContactEditActivity extends AppCompatActivity {
 			return success;
 	  }
 	  
+	  //이미지 클릭시 갤러리 호출및 이미지 임시변경! >> 저장누르면 이미지가 최종 변경되어야합니다.
+	  public void modifyImageView(View view) {
+			Intent intent = new Intent(Intent.ACTION_PICK);
+			intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
+			startActivityForResult(intent, GET_GALLERY_IMAGE);
+			
+	  }
+	  
+	  @Override
+	  protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+			super.onActivityResult(requestCode, resultCode, data);
+			
+			if (requestCode == GET_GALLERY_IMAGE && resultCode == RESULT_OK && data != null && data.getData() != null) {
+				  
+				  Uri selectedImageUri = data.getData();
+				  contactIV.setImageURI(selectedImageUri);
+			}
+	  }
 }

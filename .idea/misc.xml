@@ -3,31 +3,28 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/ipeac/AndroidStudioProjects/ContactListApplication/app/src/main/res/drawable/background_transparent.xml" value="0.2505" />
+        <entry key="..\:/Users/ipeac/AndroidStudioProjects/ContactListApplication/app/src/main/res/layout/activity_contact_detail.xml" value="0.3138888888888889" />
+        <entry key="..\:/Users/ipeac/AndroidStudioProjects/ContactListApplication/app/src/main/res/layout/activity_contact_edit.xml" value="0.287962962962963" />
+        <entry key="..\:/Users/ipeac/AndroidStudioProjects/ContactListApplication/app/src/main/res/layout/activity_main.xml" value="0.264" />
+        <entry key="..\:/Users/ipeac/AndroidStudioProjects/ContactListApplication/app/src/main/res/layout/contacts_rv_items.xml" value="0.3138888888888889" />
+        <entry key="..\:/Users/ipeac/AndroidStudioProjects/ContactListApplication/app/src/main/res/layout/fragment_edit.xml" value="0.19270833333333334" />
+        <entry key="..\:/Users/ipeac/AndroidStudioProjects/ContactListApplication/app/src/main/res/layout/fragment_share.xml" value="0.19270833333333334" />
+        <entry key="..\:/Users/ipeac/AndroidStudioProjects/ContactListApplication/app/src/main/res/layout/fragment_star.xml" value="0.19270833333333334" />
+        <entry key="..\:/Users/ipeac/AndroidStudioProjects/ContactListApplication/app/src/main/res/menu/menu_bottom.xml" value="0.3138888888888889" />
         <entry key="..\:/Users/letscombine/AndroidStudioProjects/ContactListApplication/app/src/main/res/drawable-v24/ic_account.xml" value="0.198" />
         <entry key="..\:/Users/letscombine/AndroidStudioProjects/ContactListApplication/app/src/main/res/drawable/all_circle_white_bg.xml" value="0.3715" />
         <entry key="..\:/Users/letscombine/AndroidStudioProjects/ContactListApplication/app/src/main/res/drawable/circle.xml" value="0.3715" />
         <entry key="..\:/Users/letscombine/AndroidStudioProjects/ContactListApplication/app/src/main/res/drawable/item_color.xml" value="0.3715" />
-        <entry key="..\:/Users/letscombine/AndroidStudioProjects/ContactListApplication/app/src/main/res/drawable/layout_background.xml" value="0.362" />
-        <entry key="..\:/Users/letscombine/AndroidStudioProjects/ContactListApplication/app/src/main/res/layout/activity_contact_detail.xml" value="0.264" />
-        <entry key="..\:/Users/letscombine/AndroidStudioProjects/ContactListApplication/app/src/main/res/layout/activity_contact_edit.xml" value="0.32407407407407407" />
+        <entry key="..\:/Users/letscombine/AndroidStudioProjects/ContactListApplication/app/src/main/res/layout/activity_contact_detail.xml" value="0.3277777777777778" />
         <entry key="..\:/Users/letscombine/AndroidStudioProjects/ContactListApplication/app/src/main/res/layout/activity_create_new_view.xml" value="0.3277777777777778" />
         <entry key="..\:/Users/letscombine/AndroidStudioProjects/ContactListApplication/app/src/main/res/layout/activity_main.xml" value="0.264" />
         <entry key="..\:/Users/letscombine/AndroidStudioProjects/ContactListApplication/app/src/main/res/layout/contacts_rv_items.xml" value="0.24074074074074073" />
         <entry key="..\:/Users/letscombine/AndroidStudioProjects/ContactListApplication/app/src/main/res/layout/fragment_edit.xml" value="0.18020833333333333" />
         <entry key="..\:/Users/letscombine/AndroidStudioProjects/ContactListApplication/app/src/main/res/layout/fragment_share.xml" value="0.3277777777777778" />
         <entry key="..\:/Users/letscombine/AndroidStudioProjects/ContactListApplication/app/src/main/res/layout/fragment_star.xml" value="0.3277777777777778" />
-        <entry key="..\:/Users/letscombine/AndroidStudioProjects/ContactListApplication/app/src/main/res/menu/menu_bottom.xml" value="0.32407407407407407" />
         <entry key="..\:/Users/letscombine/AndroidStudioProjects/ContactListApplication/app/src/main/res/menu/menu_botton.xml" value="0.3277777777777778" />
         <entry key="..\:/Users/letscombine/AndroidStudioProjects/ContactListApplication/app/src/main/res/menu/search_menu.xml" value="0.19010416666666666" />
-        <entry key="..\:/Users/letscombine/AndroidStudioProjects/ContactListApplication/app/src/main/res/menu/top_nav_menu.xml" value="0.32407407407407407" />
-        <entry key="..\:/Users/qkrtk/StudioProjects/ContactListApplication/app/src/main/res/layout/activity_contact_detail.xml" value="0.22870370370370371" />
-        <entry key="..\:/Users/qkrtk/StudioProjects/ContactListApplication/app/src/main/res/layout/activity_contact_edit.xml" value="0.22870370370370371" />
-        <entry key="..\:/Users/qkrtk/StudioProjects/ContactListApplication/app/src/main/res/layout/activity_contact_search.xml" value="0.22870370370370371" />
-        <entry key="..\:/Users/qkrtk/StudioProjects/ContactListApplication/app/src/main/res/layout/activity_main.xml" value="0.2484375" />
-        <entry key="..\:/Users/qkrtk/StudioProjects/ContactListApplication/app/src/main/res/layout/contacts_list_item.xml" value="0.22870370370370371" />
-        <entry key="..\:/Users/qkrtk/StudioProjects/ContactListApplication/app/src/main/res/layout/contacts_rv_items.xml" value="0.24461538461538462" />
-        <entry key="..\:/Users/qkrtk/StudioProjects/ContactListApplication/app/src/main/res/menu-v26/search_menu.xml" value="0.10833333333333334" />
-        <entry key="..\:/Users/qkrtk/StudioProjects/ContactListApplication/app/src/main/res/menu/search_menu.xml" value="0.22870370370370371" />
       </map>
     </option>
   </component>

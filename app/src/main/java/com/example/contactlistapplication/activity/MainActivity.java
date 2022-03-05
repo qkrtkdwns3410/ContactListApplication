@@ -1,5 +1,7 @@
 package com.example.contactlistapplication.activity;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 import com.example.contactlistapplication.DTO.ContactsModal;
@@ -10,21 +12,28 @@ import com.pedro.library.AutoPermissions;
 import com.pedro.library.AutoPermissionsListener;
 
 import android.annotation.SuppressLint;
+import android.content.ContentUris;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.ContactsContract;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.Toast;
 import android.widget.SearchView;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.MenuItemCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity implements AutoPermissionsListener {
 	  
@@ -32,16 +41,39 @@ public class MainActivity extends AppCompatActivity implements AutoPermissionsLi
 	  
 	  private RecyclerView contactRV;
 	  private ContactsRVAdapter contactsRVAdapter;
+	  private ContentObserver phoneObserver = new ContentObserver(new Handler()) {
+			@Override
+			public boolean deliverSelfNotifications() {
+				  return super.deliverSelfNotifications();
+			}
+			
+			@Override
+			public void onChange(boolean selfChange) {
+				  super.onChange(selfChange);
+				  prepareContactRV();
+				  getContacts();
+			}
+	  };
 	  
 	  @Override
 	  protected void onCreate(Bundle savedInstanceState) {
+			
 			Logger.d("onCreate() called with: savedInstanceState = [" + savedInstanceState + "]");
 			
 			super.onCreate(savedInstanceState);
+			
 			setContentView(R.layout.activity_main);
 			
 			contactsModalArrayList = new ArrayList<>();
 			contactRV = findViewById(R.id.idRVContacts);
+			
+			//리사이클러 뷰를 초기화
+			prepareContactRV();
+			
+			getContacts();
+			
+			getContentResolver().registerContentObserver(ContactsContract.Contacts.CONTENT_URI, false, phoneObserver);
+			//권한 허용필요함
 			
 			Toolbar toolbar = findViewById(R.id.toolbar);
 			setSupportActionBar(toolbar);
@@ -51,14 +83,6 @@ public class MainActivity extends AppCompatActivity implements AutoPermissionsLi
 				  getSupportActionBar().setTitle("");
 			}
 			
-			//리사이클러 뷰를 초기화
-			prepareContactRV();
-			
-			getContacts();
-			
-			getContentResolver().registerContentObserver(ContactsContract.Contacts.CONTENT_URI, false, phoneObserver);
-			
-			//권한 허용필요함
 			AutoPermissions.Companion.loadAllPermissions(this, 101);
 	  }
 	  
@@ -164,24 +188,12 @@ public class MainActivity extends AppCompatActivity implements AutoPermissionsLi
 			getContentResolver().unregisterContentObserver(phoneObserver);
 	  }
 	  
-	  private ContentObserver phoneObserver = new ContentObserver(new Handler()) {
-			@Override
-			public boolean deliverSelfNotifications() {
-				  return super.deliverSelfNotifications();
-			}
-			
-			@Override
-			public void onChange(boolean selfChange) {
-				  super.onChange(selfChange);
-				  prepareContactRV();
-				  getContacts();
-			}
-	  };
-	  
 	  @SuppressLint("Range")
 	  private void getContacts() {
+			Logger.d("getContacts() called");
 			String contactId = "";
 			String displayName = "";
+			Bitmap userImage;
 			
 			//핸드폰에서 데이터를 들고옵니다.
 			Cursor cursor = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, null, null, null,
@@ -195,8 +207,8 @@ public class MainActivity extends AppCompatActivity implements AutoPermissionsLi
 						if (hasPhoneNumber > 0) {
 							  contactId = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
 							  displayName = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-							  
 							  //유저 이미지 추가해야합니다.!!
+							  userImage = GetContactPhoto(contactId);
 							  
 							  //전화나 문자를 위한 Cursor
 							  Cursor phoneCursor = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
@@ -207,7 +219,7 @@ public class MainActivity extends AppCompatActivity implements AutoPermissionsLi
 							  
 							  if (phoneCursor.moveToNext()) {
 									String phoneNumber = phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-									contactsModalArrayList.add(new ContactsModal(displayName, phoneNumber));
+									contactsModalArrayList.add(new ContactsModal(displayName, phoneNumber, userImage));
 									
 							  }
 							  //폰 커서를 닫습니다.
@@ -223,4 +235,41 @@ public class MainActivity extends AppCompatActivity implements AutoPermissionsLi
 			
 	  }
 	  
+	  private Bitmap GetContactPhoto(String contactID) {
+			
+			Bitmap photo = null;
+			
+			try {
+				  InputStream inputStream = ContactsContract.Contacts.openContactPhotoInputStream(getContentResolver(),
+					  ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, Long.parseLong(contactID)));
+				  
+				  if (inputStream != null) {
+						photo = BitmapFactory.decodeStream(inputStream);
+						
+						//비트맵의 해상도 조절
+						Bitmap.createScaledBitmap(
+							photo
+							, photo.getWidth() * 2
+							, photo.getHeight() * 2
+							, true);
+						
+						Logger.d("photo  " + photo);
+				  } else {
+						return null;
+				  }
+				  inputStream.close();
+				  
+			} catch (IOException e) {
+				  e.printStackTrace();
+			}
+			return photo;
+			
+	  }
+	  
+	  @Override
+	  public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+			super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+			
+			AutoPermissions.Companion.parsePermissions(this, requestCode, permissions, this);
+	  }
 }

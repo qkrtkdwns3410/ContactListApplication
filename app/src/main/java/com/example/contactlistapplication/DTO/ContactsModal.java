@@ -1,5 +1,7 @@
 package com.example.contactlistapplication.DTO;
 
+import android.graphics.Bitmap;
+
 /**
  *packageName    : com.example.contactlistapplication.DTO
  * fileName       : ContactsDetailModal
@@ -13,22 +15,22 @@ package com.example.contactlistapplication.DTO;
  */
 public class ContactsModal {
 	  
-	  private String userImage;
+	  private Bitmap userImage;
 	  
 	  private String userName;
 	  private String contactName;
 	  
-	  public ContactsModal(String displayName, String phoneNumber, String userImage) {
+	  public ContactsModal(String displayName, String phoneNumber, Bitmap userImage) {
 			this.userName = displayName;
 			this.contactName = phoneNumber;
 			this.userImage = userImage;
 	  }
 	  
-	  public String getUserImage() {
+	  public Bitmap getUserImage() {
 			return userImage;
 	  }
 	  
-	  public void setUserImage(String userImage) {
+	  public void setUserImage(Bitmap userImage) {
 			this.userImage = userImage;
 	  }
 	  
