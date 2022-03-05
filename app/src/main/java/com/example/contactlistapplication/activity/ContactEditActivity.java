@@ -29,6 +29,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -37,6 +38,8 @@ import android.os.Bundle;
 public class ContactEditActivity extends AppCompatActivity {
 	  private EditText nameEdit, phoneEdit, emailEdit, groupEdit;
 	  private Button btnCancel, btnSave;
+	  
+	  private ImageView contactIV;
 	  // The Cursor that contains the Contact row
 	  private Cursor mCursor;
 	  // The index of the lookup key column in the cursor
@@ -57,6 +60,7 @@ public class ContactEditActivity extends AppCompatActivity {
 			super.onCreate(savedInstanceState);
 			setContentView(R.layout.activity_contact_edit);
 			
+			contactIV = findViewById(R.id.idIVContact);
 			nameEdit = findViewById(R.id.idEdtName);
 			phoneEdit = findViewById(R.id.idEdtPhoneNumber);
 			emailEdit = findViewById(R.id.idEdtEmail);

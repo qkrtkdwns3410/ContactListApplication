@@ -13,12 +13,23 @@ package com.example.contactlistapplication.DTO;
  */
 public class ContactsModal {
 	  
+	  private String userImage;
+	  
 	  private String userName;
 	  private String contactName;
 	  
-	  public ContactsModal(String displayName, String phoneNumber) {
+	  public ContactsModal(String displayName, String phoneNumber, String userImage) {
 			this.userName = displayName;
 			this.contactName = phoneNumber;
+			this.userImage = userImage;
+	  }
+	  
+	  public String getUserImage() {
+			return userImage;
+	  }
+	  
+	  public void setUserImage(String userImage) {
+			this.userImage = userImage;
 	  }
 	  
 	  public String getUserName() {

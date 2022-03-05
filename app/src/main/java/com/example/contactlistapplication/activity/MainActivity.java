@@ -35,7 +35,8 @@ public class MainActivity extends AppCompatActivity implements AutoPermissionsLi
 	  
 	  @Override
 	  protected void onCreate(Bundle savedInstanceState) {
-			Logger.d("onCreate 실행  :");
+			Logger.d("onCreate() called with: savedInstanceState = [" + savedInstanceState + "]");
+			
 			super.onCreate(savedInstanceState);
 			setContentView(R.layout.activity_main);
 			
@@ -194,9 +195,9 @@ public class MainActivity extends AppCompatActivity implements AutoPermissionsLi
 						if (hasPhoneNumber > 0) {
 							  contactId = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
 							  displayName = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-							  if (displayName.contains("xcccc")) {
-									Logger.d("displayName  " + displayName);
-							  }
+							  
+							  //유저 이미지 추가해야합니다.!!
+							  
 							  //전화나 문자를 위한 Cursor
 							  Cursor phoneCursor = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
 								  ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=?"
