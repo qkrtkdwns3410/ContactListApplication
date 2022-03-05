@@ -6,62 +6,41 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/material_dynamic_neutral90"
+    android:background="@color/material_dynamic_neutral95"
     tools:context=".activity.MainActivity"
     >
     
-    <androidx.appcompat.widget.Toolbar
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:theme="@style/Theme.AppCompat.Light"
+        app:itemIconTint="@color/black"
+        
         >
         
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            app:srcCompat="@drawable/baseline_view_headline_black_24dp"
-            />
-        
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:text="연 락 처"
-            android:layout_marginStart="30dp"
-            android:textSize="20sp"
-            android:textColor="@color/black"
-            />
-        
-        <ImageView
-            android:id="@+id/idIVMore"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:srcCompat="@drawable/outline_more_vert_black_24dp"
-            android:layout_gravity="end"
-            android:layout_marginEnd="20dp"
-            />
-        
-        <ImageView
-            android:id="@+id/idIVSearch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:srcCompat="@drawable/baseline_search_black_24dp"
-            android:layout_gravity="end"
-            android:layout_marginEnd="20dp"
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:popupTheme="@style/Theme.AppCompat.Light"
+            app:itemIconTint="@color/black"
             
-            />
-        
-        <ImageView
-            android:id="@+id/idIVPlus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:srcCompat="@drawable/outline_add_black_24dp"
-            android:layout_gravity="end"
-            android:layout_marginEnd="20dp"
+            >
             
-            />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="연락처"
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                android:layout_gravity="left"
+                android:layout_marginStart="20dp"
+                />
+        
+        </com.google.android.material.appbar.MaterialToolbar >
     
-    
-    </androidx.appcompat.widget.Toolbar >
+    </com.google.android.material.appbar.AppBarLayout >
     
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/idRVContacts"

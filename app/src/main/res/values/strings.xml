@@ -6,4 +6,6 @@
     <string name="more" >더보기</string >
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment" >Hello blank fragment</string >
+    <string name="add" >add</string >
+    <string name="search" >Search</string >
 </resources >

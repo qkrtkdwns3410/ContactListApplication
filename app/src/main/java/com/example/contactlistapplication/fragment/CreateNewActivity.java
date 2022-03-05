@@ -1,4 +1,4 @@
-package com.example.contactlistapplication.activity;
+package com.example.contactlistapplication.fragment;
 
 import com.example.contactlistapplication.R;
 

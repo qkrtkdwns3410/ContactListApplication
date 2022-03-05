@@ -34,8 +34,8 @@ import androidx.recyclerview.widget.RecyclerView;
  */
 public class ContactsRVAdapter extends RecyclerView.Adapter<ContactsRVAdapter.ViewHolder> {
 	  
-	  private final Context context;
-	  private final ArrayList<ContactsModal> contactsModalArrayList;
+	  private Context context;
+	  private ArrayList<ContactsModal> contactsModalArrayList;
 	  
 	  public ContactsRVAdapter(Context context, ArrayList<ContactsModal> contactsModalArrayList) {
 			this.context = context;
@@ -48,6 +48,13 @@ public class ContactsRVAdapter extends RecyclerView.Adapter<ContactsRVAdapter.Vi
 			LayoutInflater inflater = LayoutInflater.from(parent.getContext());
 			View itemView = inflater.inflate(R.layout.contacts_rv_items, parent, false);
 			return new ViewHolder(itemView);
+	  }
+	  
+	  public void filterList(ArrayList<ContactsModal> filterllist) {
+			// on below line we are passing filtered
+			// array list in our original array list
+			contactsModalArrayList = filterllist;
+			notifyDataSetChanged();
 	  }
 	  
 	  @Override

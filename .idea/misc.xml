@@ -20,10 +20,17 @@
         <entry key="..\:/Users/letscombine/AndroidStudioProjects/ContactListApplication/app/src/main/res/menu/menu_botton.xml" value="0.3277777777777778" />
         <entry key="..\:/Users/letscombine/AndroidStudioProjects/ContactListApplication/app/src/main/res/menu/search_menu.xml" value="0.19010416666666666" />
         <entry key="..\:/Users/letscombine/AndroidStudioProjects/ContactListApplication/app/src/main/res/menu/top_nav_menu.xml" value="0.32407407407407407" />
+        <entry key="..\:/Users/qkrtk/StudioProjects/ContactListApplication/app/src/main/res/layout/activity_contact_detail.xml" value="0.22870370370370371" />
+        <entry key="..\:/Users/qkrtk/StudioProjects/ContactListApplication/app/src/main/res/layout/activity_contact_edit.xml" value="0.22870370370370371" />
+        <entry key="..\:/Users/qkrtk/StudioProjects/ContactListApplication/app/src/main/res/layout/activity_contact_search.xml" value="0.22870370370370371" />
+        <entry key="..\:/Users/qkrtk/StudioProjects/ContactListApplication/app/src/main/res/layout/activity_main.xml" value="0.2484375" />
+        <entry key="..\:/Users/qkrtk/StudioProjects/ContactListApplication/app/src/main/res/layout/contacts_list_item.xml" value="0.22870370370370371" />
+        <entry key="..\:/Users/qkrtk/StudioProjects/ContactListApplication/app/src/main/res/menu-v26/search_menu.xml" value="0.10833333333333334" />
+        <entry key="..\:/Users/qkrtk/StudioProjects/ContactListApplication/app/src/main/res/menu/search_menu.xml" value="0.22870370370370371" />
       </map>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">

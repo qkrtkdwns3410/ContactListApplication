@@ -1,7 +1,6 @@
 package com.example.contactlistapplication.activity;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import com.example.contactlistapplication.DTO.ContactsModal;
 import com.example.contactlistapplication.R;
@@ -13,22 +12,26 @@ import com.pedro.library.AutoPermissionsListener;
 import android.annotation.SuppressLint;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.os.Bundle;
 import android.os.Handler;
 import android.provider.ContactsContract;
-import android.view.View;
-import android.widget.ProgressBar;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.Toast;
+import android.widget.SearchView;
 import androidx.appcompat.app.AppCompatActivity;
-import android.os.Bundle;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.MenuItemCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class MainActivity extends AppCompatActivity implements AutoPermissionsListener {
 	  
 	  private ArrayList<ContactsModal> contactsModalArrayList;
+	  
 	  private RecyclerView contactRV;
 	  private ContactsRVAdapter contactsRVAdapter;
-	  private ProgressBar loadingPB;
 	  
 	  @Override
 	  protected void onCreate(Bundle savedInstanceState) {
@@ -39,15 +42,94 @@ public class MainActivity extends AppCompatActivity implements AutoPermissionsLi
 			contactsModalArrayList = new ArrayList<>();
 			contactRV = findViewById(R.id.idRVContacts);
 			
+			Toolbar toolbar = findViewById(R.id.toolbar);
+			setSupportActionBar(toolbar);
+			if (getSupportActionBar() != null) {
+				  getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+				  getSupportActionBar().setHomeAsUpIndicator(R.drawable.baseline_view_headline_black_24dp);
+				  getSupportActionBar().setTitle("");
+			}
+			
 			//리사이클러 뷰를 초기화
 			prepareContactRV();
-			
-			//권한 허용필요함
-			AutoPermissions.Companion.loadAllPermissions(this, 101);
 			
 			getContacts();
 			
 			getContentResolver().registerContentObserver(ContactsContract.Contacts.CONTENT_URI, false, phoneObserver);
+			
+			//권한 허용필요함
+			AutoPermissions.Companion.loadAllPermissions(this, 101);
+	  }
+	  
+	  @Override
+	  public boolean onCreateOptionsMenu(Menu menu) {
+			Logger.d("onCreateOptionsMenu() called with: menu = [" + menu + "]");
+			
+			MenuInflater inflater = getMenuInflater();
+			inflater.inflate(R.menu.search_menu, menu);
+			MenuItem searchViewItem = menu.findItem(R.id.app_bar_search);
+			final SearchView searchView = (SearchView)MenuItemCompat.getActionView(searchViewItem);
+			searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+				  @Override
+				  public boolean onQueryTextSubmit(String query) {
+						Logger.d("onQueryTextSubmit() called with: query = [" + query + "]");
+						// on query submit we are clearing the focus for our search view.
+						searchView.clearFocus();
+						return false;
+				  }
+				  
+				  @Override
+				  public boolean onQueryTextChange(String newText) {
+						Logger.d("onQueryTextChange() called with: newText = [" + newText + "]");
+						
+						// on changing the text in our search view we are calling
+						// a filter method to filter our array list.
+						filter(newText.toLowerCase());
+						return false;
+				  }
+				  
+			});
+			return super.onCreateOptionsMenu(menu);
+	  }
+	  
+	  @Override
+	  public boolean onOptionsItemSelected(MenuItem item) {
+			Logger.d("onOptionsItemSelected() called with: item = [" + item + "]");
+			switch (item.getItemId()) {
+				  case android.R.id.home:
+						Toast.makeText(this, "Home", Toast.LENGTH_SHORT).show();
+						break;
+				  case R.id.add_contacts:
+						Toast.makeText(this, "연락처 추가", Toast.LENGTH_SHORT).show();
+						break;
+				  case R.id.app_bar_search:
+						Toast.makeText(this, "서치", Toast.LENGTH_SHORT).show();
+						break;
+				  case R.id.more_options:
+						Toast.makeText(this, "더보기", Toast.LENGTH_SHORT).show();
+						break;
+			}
+			return super.onOptionsItemSelected(item);
+	  }
+	  
+	  private void filter(String text) {
+			// in this method we are filtering our array list.
+			// on below line we are creating a new filtered array list.
+			ArrayList<ContactsModal> filteredlist = new ArrayList<>();
+			// on below line we are running a loop for checking if the item is present in array list.
+			for (ContactsModal item : contactsModalArrayList) {
+				  if (item.getUserName().toLowerCase().contains(text.toLowerCase())) {
+						// on below line we are adding item to our filtered array list.
+						filteredlist.add(item);
+				  }
+			}
+			// on below line we are checking if the filtered list is empty or not.
+			if (filteredlist.isEmpty()) {
+				  Toast.makeText(this, "No Contact Found", Toast.LENGTH_SHORT).show();
+			} else {
+				  // passing this filtered list to our adapter with filter list method.
+				  contactsRVAdapter.filterList(filteredlist);
+			}
 	  }
 	  
 	  //리사이클러 뷰 >리니어레이아웃을 가진 어댑터 아이템 장착
@@ -58,16 +140,6 @@ public class MainActivity extends AppCompatActivity implements AutoPermissionsLi
 			contactRV.setLayoutManager(new LinearLayoutManager(this));
 			
 			contactRV.setAdapter(contactsRVAdapter);
-	  }
-	  
-	  //리사이클러뷰 초기화 셋팅
-	  public void recyclerViewInitSetting() {
-			
-			LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-			contactRV.setLayoutManager(linearLayoutManager);
-			contactsRVAdapter = new ContactsRVAdapter(this, contactsModalArrayList);
-			contactRV.setAdapter(contactsRVAdapter);
-			
 	  }
 	  
 	  //권한 못받는 불쌍한 친구들
