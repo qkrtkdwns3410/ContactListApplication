@@ -129,9 +129,11 @@ public class ContactDetailActivity extends AppCompatActivity implements OnTabIte
 				  Logger.d("number  " + number);
 				  
 				  String callBackedID = data.getStringExtra("callBackID");
+				  Logger.d("체크callBackedID  " + callBackedID);
+				  
 				  nameTV.setText(name);
 				  contactTV.setText(number);
-				  contactIV.setImageBitmap(GetContactPhoto(callBackedID));
+				  contactIV.setImageBitmap(getContactsByID(callBackedID));
 				  
 			}
 	  }

@@ -23,7 +23,6 @@
             android:layout_height="85dp"
             android:layout_marginTop="25dp"
             android:onClick="modifyImageView"
-            
             tools:ignore="UsingOnClickInXml"
             />
         
@@ -32,7 +31,7 @@
             android:layout_width="match_parent"
             android:layout_height="46dp"
             android:orientation="horizontal"
-            android:background="@color/white"
+            android:background="@drawable/circle"
             >
             
             <ImageView
@@ -42,8 +41,7 @@
                 android:layout_gravity="center"
                 android:background="@drawable/baseline_person_red_500_24dp"
                 android:padding="5dp"
-                android:layout_margin="5dp"
-                
+                android:layout_marginStart="20dp"
                 />
             
             <EditText
@@ -51,7 +49,7 @@
                 android:inputType="textPersonName"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:paddingStart="10dp"
+                android:paddingStart="20dp"
                 android:paddingEnd="10dp"
                 android:hint="연락처 이름이 적히는 곳입니다."
                 android:background="@null"
@@ -62,7 +60,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@color/white"
+            android:background="@drawable/circle"
             android:layout_marginTop="10dp"
             
             >
@@ -71,6 +69,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="46dp"
                 android:orientation="horizontal"
+                
                 >
                 
                 <ImageView
@@ -80,8 +79,7 @@
                     android:layout_gravity="center"
                     android:background="@drawable/baseline_phone_red_400_24dp"
                     android:padding="5dp"
-                    android:layout_margin="5dp"
-                    
+                    android:layout_marginStart="20dp"
                     />
                 
                 <EditText
@@ -89,7 +87,7 @@
                     android:inputType="phone"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:paddingStart="10dp"
+                    android:paddingStart="20dp"
                     android:paddingEnd="10dp"
                     android:hint="연락처 번호가 적히는 곳입니다."
                     android:background="@null"
@@ -104,7 +102,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@color/white"
+            android:background="@drawable/circle"
             android:layout_marginTop="10dp"
             >
             
@@ -121,7 +119,7 @@
                     android:layout_gravity="center"
                     android:background="@drawable/outline_email_indigo_a400_24dp"
                     android:padding="5dp"
-                    android:layout_margin="5dp"
+                    android:layout_marginStart="20dp"
                     />
                 
                 <EditText
@@ -129,7 +127,7 @@
                     android:inputType="textEmailAddress"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:paddingStart="10dp"
+                    android:paddingStart="20dp"
                     android:paddingEnd="10dp"
                     android:hint="이메일"
                     android:background="@null"
@@ -144,7 +142,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@color/white"
+            android:background="@drawable/circle"
             android:layout_marginTop="10dp"
             
             >
@@ -162,7 +160,7 @@
                     android:layout_gravity="center"
                     android:background="@drawable/outline_group_indigo_a400_24dp"
                     android:padding="5dp"
-                    android:layout_margin="5dp"
+                    android:layout_marginStart="20dp"
                     
                     />
                 
@@ -171,7 +169,7 @@
                     android:inputType="text"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:paddingStart="10dp"
+                    android:paddingStart="20dp"
                     android:paddingEnd="10dp"
                     android:hint="그룹"
                     android:background="@null"

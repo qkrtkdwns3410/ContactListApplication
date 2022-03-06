@@ -1,8 +1,11 @@
 package com.example.contactlistapplication.activity;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.SimpleTimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,6 +17,7 @@ import android.annotation.SuppressLint;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -28,6 +32,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Parcelable;
 import android.os.RemoteException;
+import android.provider.Contacts;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.telephony.PhoneNumberUtils;
@@ -68,8 +73,71 @@ public class ContactEditActivity extends AppCompatActivity {
 	  // A content URI pointing to the contact
 	  private Uri selectedContactUri;
 	  
-	  @Override
+	  @SuppressLint("Range")
+	  private Bitmap getContactsByID(String contactIdPara) {
+			Logger.d("getContacts() called");
+			Logger.d("contactIdPara  " + contactIdPara);
+			String contactId = "";
+			Bitmap userImage = null;
+			
+			//핸드폰에서 데이터를 들고옵니다.
+			Cursor cursor = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, null, null, null,
+				ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC");
+			
+			if (cursor.getCount() > 0) {
+				  // 카운트가 0 초과라면 cursor를 계속 진행진행 ~~~~~
+				  while (cursor.moveToNext()) {
+						int hasPhoneNumber = Integer.parseInt(cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER)));
+						//폰넘버를 가진 친구라면!
+						if (hasPhoneNumber > 0) {
+							  contactId = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
+							  
+							  if (Objects.equals(contactId, contactIdPara)) {
+									
+									userImage = GetContactPhoto(contactId);
+									
+									return userImage;
+							  }
+							  
+						}
+				  }
+			}
+			cursor.close();
+			return userImage;
+	  }
 	  
+	  private Bitmap GetContactPhoto(String contactID) {
+			
+			Bitmap photo = null;
+			
+			try {
+				  InputStream inputStream = ContactsContract.Contacts.openContactPhotoInputStream(getContentResolver(),
+					  ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, Long.parseLong(contactID)));
+				  
+				  if (inputStream != null) {
+						photo = BitmapFactory.decodeStream(inputStream);
+						
+						//비트맵의 해상도 조절
+						Bitmap.createScaledBitmap(
+							photo
+							, photo.getWidth() * 2
+							, photo.getHeight() * 2
+							, true);
+						
+						Logger.d("photo  " + photo);
+				  } else {
+						return null;
+				  }
+				  inputStream.close();
+				  
+			} catch (IOException e) {
+				  e.printStackTrace();
+			}
+			return photo;
+			
+	  }
+	  
+	  @Override
 	  protected void onCreate(Bundle savedInstanceState) {
 			Logger.d("onCreate 실행  :");
 			super.onCreate(savedInstanceState);
@@ -86,19 +154,19 @@ public class ContactEditActivity extends AppCompatActivity {
 				  btnSave = findViewById(R.id.idBtnSave);
 				  btnCancel = findViewById(R.id.idBtnCancel);
 				  
-				  bitmapImage = getIntent().getParcelableExtra("image");
+				  myID = getIntent().getStringExtra("myID");
 				  
-				  //기본이미지.. 설정
+				  bitmapImage = getContactsByID(myID);
+				  
+				  nameEdit.setText(getIntent().getStringExtra("name"));
+				  phoneEdit.setText(getIntent().getStringExtra("number"));
 				  if (bitmapImage == null) {
 						contactIV.setImageResource(R.drawable.default_image);
+						
 				  } else {
 						contactIV.setImageBitmap(bitmapImage);
 				  }
 				  
-				  myID = getIntent().getStringExtra("myID");
-				  
-				  nameEdit.setText(getIntent().getStringExtra("name"));
-				  phoneEdit.setText(getIntent().getStringExtra("number"));
 			} catch (Exception e) {
 				  e.printStackTrace();
 			}
@@ -261,7 +329,7 @@ public class ContactEditActivity extends AppCompatActivity {
 							  
 							  ops.add(android.content.ContentProviderOperation.newUpdate(android.provider.ContactsContract.Data.CONTENT_URI)
 								  .withSelection(where, imageParams)
-								  .withValue(ContactsContract.CommonDataKinds.Photo.DATA15, b)
+								  .withValue(, b)
 								  .build());
 						}
 						contentResolver.applyBatch(ContactsContract.AUTHORITY, ops);
