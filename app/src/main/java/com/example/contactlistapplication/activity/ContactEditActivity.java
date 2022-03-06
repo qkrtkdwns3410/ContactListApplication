@@ -32,7 +32,6 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Parcelable;
 import android.os.RemoteException;
-import android.provider.Contacts;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.telephony.PhoneNumberUtils;
@@ -75,8 +74,8 @@ public class ContactEditActivity extends AppCompatActivity {
 	  
 	  @SuppressLint("Range")
 	  private Bitmap getContactsByID(String contactIdPara) {
-			Logger.d("getContacts() called");
-			Logger.d("contactIdPara  " + contactIdPara);
+			Logger.d("getContactsByID() called with: contactIdPara = [" + contactIdPara + "]");
+			
 			String contactId = "";
 			Bitmap userImage = null;
 			
@@ -161,9 +160,12 @@ public class ContactEditActivity extends AppCompatActivity {
 				  nameEdit.setText(getIntent().getStringExtra("name"));
 				  phoneEdit.setText(getIntent().getStringExtra("number"));
 				  if (bitmapImage == null) {
+						Logger.d("이미지가 널입니다.");
 						contactIV.setImageResource(R.drawable.default_image);
 						
 				  } else {
+						Logger.d("이미지가 널이 아닙니다..");
+						
 						contactIV.setImageBitmap(bitmapImage);
 				  }
 				  
@@ -329,7 +331,7 @@ public class ContactEditActivity extends AppCompatActivity {
 							  
 							  ops.add(android.content.ContentProviderOperation.newUpdate(android.provider.ContactsContract.Data.CONTENT_URI)
 								  .withSelection(where, imageParams)
-								  .withValue(, b)
+								  .withValue(ContactsContract.CommonDataKinds.Photo.DATA15, b)
 								  .build());
 						}
 						contentResolver.applyBatch(ContactsContract.AUTHORITY, ops);

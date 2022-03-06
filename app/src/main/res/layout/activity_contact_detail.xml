@@ -87,7 +87,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginLeft="155dp"
                 android:contentDescription="프로필 이미지 입니다."
-                android:scaleType="centerCrop"
                 />
         </FrameLayout >
         

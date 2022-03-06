@@ -10,11 +10,13 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.orhanobut.logger.Logger;
 
 import android.annotation.SuppressLint;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.provider.ContactsContract;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -67,7 +69,8 @@ public class ContactDetailActivity extends AppCompatActivity implements OnTabIte
 							  
 							  if (Objects.equals(contactId, contactIdPara)) {
 									
-									userImage = GetContactPhoto(contactId);
+									userImage = loadContactPhoto(getContentResolver(), Long.parseLong(contactId));
+									Logger.d("userImage  " + userImage);
 									
 									return userImage;
 							  }
@@ -79,34 +82,19 @@ public class ContactDetailActivity extends AppCompatActivity implements OnTabIte
 			return userImage;
 	  }
 	  
-	  private Bitmap GetContactPhoto(String contactID) {
+	  public static Bitmap loadContactPhoto(ContentResolver cr, long contact_id) {
 			
-			Bitmap photo = null;
+			Uri uri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, contact_id);
 			
-			try {
-				  InputStream inputStream = ContactsContract.Contacts.openContactPhotoInputStream(getContentResolver(),
-					  ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, Long.parseLong(contactID)));
+			InputStream input = ContactsContract.Contacts.openContactPhotoInputStream(cr, uri);
+			
+			if (input == null) {
 				  
-				  if (inputStream != null) {
-						photo = BitmapFactory.decodeStream(inputStream);
-						
-						//비트맵의 해상도 조절
-						Bitmap.createScaledBitmap(
-							photo
-							, photo.getWidth() * 2
-							, photo.getHeight() * 2
-							, true);
-						
-						Logger.d("photo  " + photo);
-				  } else {
-						return null;
-				  }
-				  inputStream.close();
+				  return null;
 				  
-			} catch (IOException e) {
-				  e.printStackTrace();
 			}
-			return photo;
+			
+			return BitmapFactory.decodeStream(input);
 			
 	  }
 	  
