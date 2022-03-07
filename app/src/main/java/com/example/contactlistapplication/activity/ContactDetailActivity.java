@@ -1,7 +1,9 @@
 package com.example.contactlistapplication.activity;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Objects;
 
 import com.example.contactlistapplication.R;
@@ -18,6 +20,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.ContactsContract;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.Nullable;
@@ -50,51 +53,112 @@ public class ContactDetailActivity extends AppCompatActivity implements OnTabIte
 	  
 	  @SuppressLint("Range")
 	  private Bitmap getContactsByID(String contactIdPara) {
-			Logger.d("getContacts() called");
-			Logger.d("contactIdPara  " + contactIdPara);
-			String contactId = "";
-			Bitmap userImage = null;
-			
-			//핸드폰에서 데이터를 들고옵니다.
-			Cursor cursor = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, null, null, null,
-				ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC");
-			
-			if (cursor.getCount() > 0) {
-				  // 카운트가 0 초과라면 cursor를 계속 진행진행 ~~~~~
-				  while (cursor.moveToNext()) {
-						int hasPhoneNumber = Integer.parseInt(cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER)));
-						//폰넘버를 가진 친구라면!
-						if (hasPhoneNumber > 0) {
-							  contactId = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
-							  
-							  if (Objects.equals(contactId, contactIdPara)) {
+			try {
+				  
+				  Logger.d("getContacts() called");
+				  Logger.d("contactIdPara  " + contactIdPara);
+				  String contactId = "";
+				  Bitmap userImage = null;
+				  
+				  //핸드폰에서 데이터를 들고옵니다.
+				  Cursor cursor = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, null, null, null,
+					  ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC");
+				  
+				  if (cursor.getCount() > 0) {
+						// 카운트가 0 초과라면 cursor를 계속 진행진행 ~~~~~
+						while (cursor.moveToNext()) {
+							  int hasPhoneNumber = Integer.parseInt(cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER)));
+							  //폰넘버를 가진 친구라면!
+							  if (hasPhoneNumber > 0) {
+									contactId = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
 									
-									userImage = loadContactPhoto(getContentResolver(), Long.parseLong(contactId));
-									Logger.d("userImage  " + userImage);
-									
-									return userImage;
+									if (Objects.equals(contactId, contactIdPara)) {
+										  
+										  userImage = BitmapFactory.decodeStream(openPhoto(Long.parseLong(contactId)));
+										  
+										  Logger.d("userImage  " + userImage);
+										  
+										  return userImage;
+									}
 							  }
-							  
 						}
 				  }
+				  
+				  cursor.close();
+				  return userImage;
+				  
+			} catch (Exception e) {
+				  e.printStackTrace();
+				  return null;
 			}
-			cursor.close();
-			return userImage;
 	  }
 	  
-	  public static Bitmap loadContactPhoto(ContentResolver cr, long contact_id) {
+	  public InputStream openPhoto(long contactId) {
+			Logger.d("openPhoto() called with: contactId = [" + contactId + "]");
 			
-			Uri uri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, contact_id);
+			Uri contactUri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, contactId);
+			Uri photoUri = Uri.withAppendedPath(contactUri, ContactsContract.Contacts.Photo.CONTENT_DIRECTORY);
+			Logger.d("photoUri  " + photoUri);
 			
-			InputStream input = ContactsContract.Contacts.openContactPhotoInputStream(cr, uri);
+			Cursor cursor = getContentResolver().query(photoUri,
+				new String[] {ContactsContract.Contacts.Photo.PHOTO}, null, null, null);
+			Logger.d("cursor  " + cursor);
 			
-			if (input == null) {
-				  
+			if (cursor == null) {
+				  Logger.d("이미지가 null입니다.");
 				  return null;
-				  
 			}
 			
-			return BitmapFactory.decodeStream(input);
+			try {
+				  Logger.d("트라이 진입");
+				  
+				  if (cursor.moveToFirst()) {
+						Logger.d("moveToFirst ");
+						byte[] data = cursor.getBlob(0);
+						Logger.d("data  " + Arrays.toString(data));
+						
+						if (data != null) {
+							  Logger.d("리턴완료");
+							  return new ByteArrayInputStream(data);
+						}
+						Logger.d("이미지가 null입니다.");
+						
+				  }
+			} finally {
+				  cursor.close();
+			}
+			return null;
+	  }
+	  
+	  private Bitmap GetContactPhoto(String contactID) {
+			
+			Bitmap photo = null;
+			
+			try {
+				  InputStream inputStream = ContactsContract.Contacts.openContactPhotoInputStream(getContentResolver(),
+					  ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, Long.parseLong(contactID)));
+				  
+				  if (inputStream != null) {
+						Logger.d("이미지 인풋이 널이 아님.");
+						photo = BitmapFactory.decodeStream(inputStream);
+						
+						//비트맵의 해상도 조절
+						Bitmap.createScaledBitmap(
+							photo
+							, photo.getWidth() * 2
+							, photo.getHeight() * 2
+							, true);
+						
+				  } else {
+						Logger.d("이미지 인풋이 널임.");
+						return null;
+				  }
+				  inputStream.close();
+				  
+			} catch (IOException e) {
+				  e.printStackTrace();
+			}
+			return photo;
 			
 	  }
 	  
@@ -121,9 +185,75 @@ public class ContactDetailActivity extends AppCompatActivity implements OnTabIte
 				  
 				  nameTV.setText(name);
 				  contactTV.setText(number);
-				  contactIV.setImageBitmap(getContactsByID(callBackedID));
+				  contactIV.setImageBitmap(BitmapFactory.decodeStream(openPhoto(Long.parseLong(callBackedID))));
 				  
 			}
+	  }
+	  
+	  @Override
+	  protected void onResume() {
+			super.onResume();
+			
+			setContentView(R.layout.activity_contact_detail);
+			
+			swipeRefreshLayout = findViewById(R.id.SwipeRefreshLayout);
+			
+			contactName = getIntent().getStringExtra("name");
+			
+			contactNumber = getIntent().getStringExtra("contact");
+			
+			myID = getIntent().getStringExtra("myRealID");
+			Bitmap bitbit = getContactsByID(myID);
+			
+			contactTV = findViewById(R.id.idTVPhone);
+			nameTV = findViewById(R.id.idTVContactName);
+			contactIV = findViewById(R.id.idIVContact);
+			
+			nameTV.setText(contactName);
+			contactTV.setText(contactNumber);
+			
+			if (bitbit == null) {
+				  contactIV.setImageResource(R.drawable.default_image);
+			} else {
+				  contactIV.setImageBitmap(bitbit);
+				  contactIV.setScaleType(ImageView.ScaleType.CENTER_CROP);
+			}
+			
+			bottomNavigation = findViewById(R.id.bottomNavi);
+			bottomNavigation.setOnNavigationItemSelectedListener(item -> {
+				  switch (item.getItemId()) {
+						case R.id.star:
+							  
+							  return true;
+						case R.id.edit:
+							  Intent intent = new Intent(ContactDetailActivity.this, ContactEditActivity.class);
+							  intent.putExtra("myID", myID);
+							  intent.putExtra("name", contactName);
+							  intent.putExtra("number", contactNumber);
+							  
+							  if (bitbit == null) {
+									intent.putExtra("image", R.drawable.default_image);
+							  } else {
+									intent.putExtra("image", bitbit);
+									
+							  }
+							  
+							  startActivityForResult(intent, 101);
+						case R.id.share:
+							  
+							  return true;
+				  }
+				  
+				  return false;
+			});
+			
+			swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+				  @Override
+				  public void onRefresh() {
+						
+						swipeRefreshLayout.setRefreshing(false);
+				  }
+			});
 	  }
 	  
 	  @Override

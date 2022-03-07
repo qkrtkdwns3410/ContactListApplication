@@ -13,7 +13,7 @@ import android.graphics.Bitmap;
  * -----------------------------------------------------------
  * 2022-03-03        letscombine       최초 생성
  */
-public class ContactsModal {
+public class ContactsModal implements Comparable<ContactsModal> {
 	  
 	  private Bitmap userImage;
 	  
@@ -57,7 +57,26 @@ public class ContactsModal {
 			return contactName;
 	  }
 	  
+	  @Override
+	  public int compareTo(ContactsModal contactsModal) {
+			//여긴 이름을 기준으로 정렬
+			
+			//이건 내림 차순
+			
+			//문자열은 이런 식으로 가능
+			
+			//		return this.name.compareTo(_people.name);
+			
+			//이건 오름차순
+			
+			//문자열은 이런 식으로 가능
+			
+			return contactsModal.contactName.compareTo(this.contactName);
+			
+	  }
+	  
 	  public void setContactName(String contactName) {
+			
 			this.contactName = contactName;
 	  }
 	  

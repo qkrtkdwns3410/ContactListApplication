@@ -2,6 +2,7 @@ package com.example.contactlistapplication.adapter;
 
 import java.nio.file.FileAlreadyExistsException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
 
 import com.amulyakhare.textdrawable.TextDrawable;
@@ -39,6 +40,8 @@ public class ContactsRVAdapter extends RecyclerView.Adapter<ContactsRVAdapter.Vi
 	  
 	  public ContactsRVAdapter(Context context, ArrayList<ContactsModal> contactsModalArrayList) {
 			this.context = context;
+			
+			Collections.sort(contactsModalArrayList);
 			this.contactsModalArrayList = contactsModalArrayList;
 	  }
 	  

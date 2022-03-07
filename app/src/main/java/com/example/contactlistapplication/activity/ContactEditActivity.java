@@ -1,5 +1,6 @@
 package com.example.contactlistapplication.activity;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -343,6 +344,27 @@ public class ContactEditActivity extends AppCompatActivity {
 			return success;
 	  }
 	  // To get COntact Ids of all contact use the below method
+	  
+	  public InputStream openPhoto(long contactId) {
+			Uri contactUri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, contactId);
+			Uri photoUri = Uri.withAppendedPath(contactUri, ContactsContract.Contacts.Photo.CONTENT_DIRECTORY);
+			Cursor cursor = getContentResolver().query(photoUri,
+				new String[] {ContactsContract.Contacts.Photo.PHOTO}, null, null, null);
+			if (cursor == null) {
+				  return null;
+			}
+			try {
+				  if (cursor.moveToFirst()) {
+						byte[] data = cursor.getBlob(0);
+						if (data != null) {
+							  return new ByteArrayInputStream(data);
+						}
+				  }
+			} finally {
+				  cursor.close();
+			}
+			return null;
+	  }
 	  
 	  //이미지 클릭시 갤러리 호출및 이미지 임시변경! >> 저장누르면 이미지가 최종 변경되어야합니다.
 	  public void modifyImageView(View view) {
