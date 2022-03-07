@@ -45,10 +45,11 @@
     
     </com.google.android.material.appbar.AppBarLayout >
     
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/idRVContacts"
+    <in.myinnos.alphabetsindexfastscrollrecycler.IndexFastScrollRecyclerView
+        android:id="@+id/fast_scroller_recycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:fadeScrollbars="true"
         />
 
 

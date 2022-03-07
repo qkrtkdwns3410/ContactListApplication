@@ -10,4 +10,6 @@
     <color name="colorPrimary" >#008577</color >
     <color name="colorPrimaryDark" >#00574B</color >
     <color name="colorAccent" >#D81B60</color >
+    <color name="light_top_status_color" >@color/material_dynamic_neutral95</color >
+    <color name="transparent_color" >@android:color/transparent</color >
 </resources >

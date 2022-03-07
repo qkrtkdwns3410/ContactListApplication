@@ -20,11 +20,9 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.ContactsContract;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.ImageView;
 import android.widget.Toast;
 import android.widget.SearchView;
 import androidx.annotation.NonNull;
@@ -33,13 +31,13 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.MenuItemCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import de.hdodenhof.circleimageview.CircleImageView;
+import in.myinnos.alphabetsindexfastscrollrecycler.IndexFastScrollRecyclerView;
 
 public class MainActivity extends AppCompatActivity implements AutoPermissionsListener {
 	  
 	  private ArrayList<ContactsModal> contactsModalArrayList;
 	  
-	  private RecyclerView contactRV;
+	  private IndexFastScrollRecyclerView contactRV;
 	  private ContactsRVAdapter contactsRVAdapter;
 	  private ContentObserver phoneObserver = new ContentObserver(new Handler()) {
 			@Override
@@ -65,7 +63,9 @@ public class MainActivity extends AppCompatActivity implements AutoPermissionsLi
 			setContentView(R.layout.activity_main);
 			
 			contactsModalArrayList = new ArrayList<>();
-			contactRV = findViewById(R.id.idRVContacts);
+			contactRV = findViewById(R.id.fast_scroller_recycler);
+			
+			contactRV.setIndexBarVisibility(false);
 			
 			//리사이클러 뷰를 초기화
 			prepareContactRV();
@@ -82,6 +82,28 @@ public class MainActivity extends AppCompatActivity implements AutoPermissionsLi
 				  getSupportActionBar().setHomeAsUpIndicator(R.drawable.baseline_view_headline_black_24dp);
 				  getSupportActionBar().setTitle("");
 			}
+			
+			contactRV.addOnScrollListener(new RecyclerView.OnScrollListener() {
+				  @Override
+				  public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+						super.onScrollStateChanged(recyclerView, newState);
+						contactRV.setIndexBarTransparentValue((float)0.4);
+						contactRV.setIndexBarStrokeWidth(0);
+						
+						if (newState == RecyclerView.SCROLL_STATE_SETTLING) {
+							  contactRV.setIndexBarVisibility(true);
+						} else {
+							  contactRV.setIndexBarVisibility(false);
+							  
+						}
+				  }
+				  
+				  @Override
+				  public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+						super.onScrolled(recyclerView, dx, dy);
+						contactRV.setIndexBarVisibility(true);
+				  }
+			});
 			
 			AutoPermissions.Companion.loadAllPermissions(this, 101);
 	  }
@@ -125,15 +147,19 @@ public class MainActivity extends AppCompatActivity implements AutoPermissionsLi
 				  case android.R.id.home:
 						Toast.makeText(this, "Home", Toast.LENGTH_SHORT).show();
 						break;
+				  
 				  case R.id.add_contacts:
 						Toast.makeText(this, "연락처 추가", Toast.LENGTH_SHORT).show();
 						break;
+				  
 				  case R.id.app_bar_search:
 						Toast.makeText(this, "서치", Toast.LENGTH_SHORT).show();
 						break;
+				  
 				  case R.id.more_options:
 						Toast.makeText(this, "더보기", Toast.LENGTH_SHORT).show();
 						break;
+				  
 			}
 			return super.onOptionsItemSelected(item);
 	  }
