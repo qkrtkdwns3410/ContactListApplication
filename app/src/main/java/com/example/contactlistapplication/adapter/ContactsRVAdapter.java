@@ -38,15 +38,6 @@ import androidx.recyclerview.widget.RecyclerView;
  */
 public class ContactsRVAdapter extends RecyclerView.Adapter<ContactsRVAdapter.ViewHolder> implements SectionIndexer {
 	  
-	  final static String[] CHO = {"ㄱ", "ㄲ", "ㄴ", "ㄷ", "ㄸ", "ㄹ", "ㅁ", "ㅂ", "ㅃ",
-		  "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅉ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"};
-	  
-	  final static String[] JOONG = {"ㅏ", "ㅐ", "ㅑ", "ㅒ", "ㅓ", "ㅔ", "ㅕ", "ㅖ", "ㅗ", "ㅘ",
-		  "ㅙ", "ㅚ", "ㅛ", "ㅜ", "ㅝ", "ㅞ", "ㅟ", "ㅠ", "ㅡ", "ㅢ", "ㅣ"};
-	  
-	  final static String[] JONG = {"", "ㄱ", "ㄲ", "ㄳ", "ㄴ", "ㄵ", "ㄶ", "ㄷ", "ㄹ", "ㄺ", "ㄻ", "ㄼ",
-		  "ㄽ", "ㄾ", "ㄿ", "ㅀ", "ㅁ", "ㅂ", "ㅄ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"};
-	  
 	  private Context context;
 	  private ArrayList<ContactsModal> contactsModalArrayList;
 	  private ArrayList<Integer> mSectionPositions;
@@ -89,6 +80,7 @@ public class ContactsRVAdapter extends RecyclerView.Adapter<ContactsRVAdapter.Vi
 				.height(100)
 				.endConfig()
 				.buildRound(modal.getUserName().substring(0, 1), color);
+			
 			if (modal.getUserImage() != null) {
 				  holder.contactImageView.setImageBitmap(modal.getUserImage());
 			} else {

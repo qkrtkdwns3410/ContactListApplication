@@ -28,7 +28,6 @@
             android:layout_height="?attr/actionBarSize"
             app:popupTheme="@style/Theme.AppCompat.Light"
             app:itemIconTint="@color/black"
-            
             >
             
             <TextView
@@ -45,12 +44,15 @@
     
     </com.google.android.material.appbar.AppBarLayout >
     
+    
     <in.myinnos.alphabetsindexfastscrollrecycler.IndexFastScrollRecyclerView
         android:id="@+id/fast_scroller_recycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fadeScrollbars="true"
-        />
+        >
+    
+    </in.myinnos.alphabetsindexfastscrollrecycler.IndexFastScrollRecyclerView >
 
 
 </LinearLayout >
