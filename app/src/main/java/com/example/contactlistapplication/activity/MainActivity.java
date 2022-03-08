@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.net.ssl.HandshakeCompletedEvent;
+
 import com.example.contactlistapplication.DTO.ContactsModal;
 import com.example.contactlistapplication.R;
 import com.example.contactlistapplication.adapter.ContactsRVAdapter;
@@ -18,6 +20,7 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.ContactsContract;
@@ -107,6 +110,55 @@ public class MainActivity extends AppCompatActivity implements AutoPermissionsLi
 			});
 			
 			AutoPermissions.Companion.loadAllPermissions(this, 101);
+	  }
+	  
+	  @Override
+	  protected void onResume() {
+			super.onResume();
+			
+			setContentView(R.layout.activity_main);
+			
+			contactsModalArrayList = new ArrayList<>();
+			contactRV = findViewById(R.id.fast_scroller_recycler);
+			
+			contactRV.setIndexBarVisibility(false);
+			
+			//리사이클러 뷰를 초기화
+			prepareContactRV();
+			
+			getContacts();
+			
+			getContentResolver().registerContentObserver(ContactsContract.Contacts.CONTENT_URI, false, phoneObserver);
+			//권한 허용필요함
+			
+			Toolbar toolbar = findViewById(R.id.toolbar);
+			setSupportActionBar(toolbar);
+			if (getSupportActionBar() != null) {
+				  getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+				  getSupportActionBar().setHomeAsUpIndicator(R.drawable.baseline_view_headline_black_24dp);
+				  getSupportActionBar().setTitle("");
+			}
+			
+			contactRV.addOnScrollListener(new RecyclerView.OnScrollListener() {
+				  @Override
+				  public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+						super.onScrollStateChanged(recyclerView, newState);
+						contactRV.setIndexBarTransparentValue((float)0.4);
+						contactRV.setIndexBarStrokeWidth(0);
+						
+						if (newState == RecyclerView.SCROLL_STATE_SETTLING) {
+							  contactRV.setIndexBarVisibility(true);
+						} else {
+							  contactRV.setIndexBarVisibility(false);
+						}
+				  }
+				  
+				  @Override
+				  public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+						super.onScrolled(recyclerView, dx, dy);
+						contactRV.setIndexBarVisibility(true);
+				  }
+			});
 	  }
 	  
 	  public Object[] getSections() {
@@ -371,56 +423,6 @@ public class MainActivity extends AppCompatActivity implements AutoPermissionsLi
 			}
 			return photo;
 			
-	  }
-	  
-	  @Override
-	  protected void onResume() {
-			super.onResume();
-			
-			setContentView(R.layout.activity_main);
-			
-			contactsModalArrayList = new ArrayList<>();
-			contactRV = findViewById(R.id.fast_scroller_recycler);
-			
-			contactRV.setIndexBarVisibility(false);
-			
-			//리사이클러 뷰를 초기화
-			prepareContactRV();
-			
-			getContacts();
-			
-			getContentResolver().registerContentObserver(ContactsContract.Contacts.CONTENT_URI, false, phoneObserver);
-			//권한 허용필요함
-			
-			Toolbar toolbar = findViewById(R.id.toolbar);
-			setSupportActionBar(toolbar);
-			if (getSupportActionBar() != null) {
-				  getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-				  getSupportActionBar().setHomeAsUpIndicator(R.drawable.baseline_view_headline_black_24dp);
-				  getSupportActionBar().setTitle("");
-			}
-			
-			contactRV.addOnScrollListener(new RecyclerView.OnScrollListener() {
-				  @Override
-				  public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-						super.onScrollStateChanged(recyclerView, newState);
-						contactRV.setIndexBarTransparentValue((float)0.4);
-						contactRV.setIndexBarStrokeWidth(0);
-						
-						if (newState == RecyclerView.SCROLL_STATE_SETTLING) {
-							  contactRV.setIndexBarVisibility(true);
-						} else {
-							  contactRV.setIndexBarVisibility(false);
-							  
-						}
-				  }
-				  
-				  @Override
-				  public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-						super.onScrolled(recyclerView, dx, dy);
-						contactRV.setIndexBarVisibility(true);
-				  }
-			});
 	  }
 	  
 	  @Override
