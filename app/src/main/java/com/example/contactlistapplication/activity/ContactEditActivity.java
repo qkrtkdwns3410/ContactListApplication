@@ -82,7 +82,7 @@ public class ContactEditActivity extends AppCompatActivity {
 			
 			//핸드폰에서 데이터를 들고옵니다.
 			Cursor cursor = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, null, null, null,
-				ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC");
+				null);
 			
 			if (cursor.getCount() > 0) {
 				  // 카운트가 0 초과라면 cursor를 계속 진행진행 ~~~~~
@@ -160,6 +160,7 @@ public class ContactEditActivity extends AppCompatActivity {
 				  
 				  nameEdit.setText(getIntent().getStringExtra("name"));
 				  phoneEdit.setText(getIntent().getStringExtra("number"));
+				  
 				  if (bitmapImage == null) {
 						Logger.d("이미지가 널입니다.");
 						contactIV.setImageResource(R.drawable.default_image);
@@ -198,13 +199,6 @@ public class ContactEditActivity extends AppCompatActivity {
 							  Toast.makeText(ContactEditActivity.this, "데이터를 입력해주세요", Toast.LENGTH_SHORT).show();
 						} else {
 							  try {
-									
-									/*
-									 * Once the user has selected a contact to edit,
-									 * this gets the contact's lookup key and _ID values from the
-									 * cursor and creates the necessary URI.
-									 */
-									
 									mCursor = ContactEditActivity.this.getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, null,
 										ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " = ?", new String[] {oldName}, null);
 									
@@ -344,27 +338,6 @@ public class ContactEditActivity extends AppCompatActivity {
 			return success;
 	  }
 	  // To get COntact Ids of all contact use the below method
-	  
-	  public InputStream openPhoto(long contactId) {
-			Uri contactUri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, contactId);
-			Uri photoUri = Uri.withAppendedPath(contactUri, ContactsContract.Contacts.Photo.CONTENT_DIRECTORY);
-			Cursor cursor = getContentResolver().query(photoUri,
-				new String[] {ContactsContract.Contacts.Photo.PHOTO}, null, null, null);
-			if (cursor == null) {
-				  return null;
-			}
-			try {
-				  if (cursor.moveToFirst()) {
-						byte[] data = cursor.getBlob(0);
-						if (data != null) {
-							  return new ByteArrayInputStream(data);
-						}
-				  }
-			} finally {
-				  cursor.close();
-			}
-			return null;
-	  }
 	  
 	  //이미지 클릭시 갤러리 호출및 이미지 임시변경! >> 저장누르면 이미지가 최종 변경되어야합니다.
 	  public void modifyImageView(View view) {

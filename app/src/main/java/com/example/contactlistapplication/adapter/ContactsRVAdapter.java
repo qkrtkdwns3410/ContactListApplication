@@ -109,6 +109,7 @@ public class ContactsRVAdapter extends RecyclerView.Adapter<ContactsRVAdapter.Vi
 	  }
 	  
 	  public class ViewHolder extends RecyclerView.ViewHolder {
+			
 			//리사이클러뷰 뷰홀더 설정
 			private final ImageView contactImageView;
 			private final TextView contactTextView;

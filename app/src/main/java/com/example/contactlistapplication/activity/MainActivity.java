@@ -3,9 +3,6 @@ package com.example.contactlistapplication.activity;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.List;
-
-import javax.net.ssl.HandshakeCompletedEvent;
 
 import com.example.contactlistapplication.DTO.ContactsModal;
 import com.example.contactlistapplication.R;
@@ -20,7 +17,6 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.ContactsContract;
@@ -91,13 +87,16 @@ public class MainActivity extends AppCompatActivity implements AutoPermissionsLi
 				  @Override
 				  public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
 						super.onScrollStateChanged(recyclerView, newState);
-						contactRV.setIndexBarTransparentValue((float)0.4);
-						contactRV.setIndexBarStrokeWidth(0);
 						
 						if (newState == RecyclerView.SCROLL_STATE_SETTLING) {
 							  contactRV.setIndexBarVisibility(true);
 						} else {
-							  contactRV.setIndexBarVisibility(false);
+							  new Handler().postDelayed(new Runnable() {
+									@Override
+									public void run() {
+										  contactRV.setIndexBarVisibility(false);
+									}
+							  }, 1000);
 							  
 						}
 				  }
@@ -106,6 +105,8 @@ public class MainActivity extends AppCompatActivity implements AutoPermissionsLi
 				  public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
 						super.onScrolled(recyclerView, dx, dy);
 						contactRV.setIndexBarVisibility(true);
+						contactRV.setIndexBarTransparentValue((float)0.4);
+						contactRV.setIndexBarStrokeWidth(0);
 				  }
 			});
 			
@@ -149,7 +150,12 @@ public class MainActivity extends AppCompatActivity implements AutoPermissionsLi
 						if (newState == RecyclerView.SCROLL_STATE_SETTLING) {
 							  contactRV.setIndexBarVisibility(true);
 						} else {
-							  contactRV.setIndexBarVisibility(false);
+							  new Handler().postDelayed(new Runnable() {
+									@Override
+									public void run() {
+										  contactRV.setIndexBarVisibility(false);
+									}
+							  }, 1000);
 						}
 				  }
 				  
@@ -159,85 +165,6 @@ public class MainActivity extends AppCompatActivity implements AutoPermissionsLi
 						contactRV.setIndexBarVisibility(true);
 				  }
 			});
-	  }
-	  
-	  public Object[] getSections() {
-			Logger.d("getSections() called");
-			//가나다 알파벳 섹션 지정하기
-			
-			List<String> sections = new ArrayList<>();
-			ArrayList<Integer> mSectionPositions = new ArrayList<>();
-			
-			for (int index = 0, size = contactsModalArrayList.size(); index < size; index++) {
-				  String section = String.valueOf(contactsModalArrayList.get(index).getUserName().charAt(0)).toUpperCase();
-				  char sectionCh = section.charAt(0);
-				  Logger.d("sectionCh  " + sectionCh);
-				  
-				  section = getInitialSound(String.valueOf(sectionCh));
-				  
-				  if (!sections.contains(section)) {
-						sections.add(section);
-						mSectionPositions.add(index);
-				  }
-			}
-			return sections.toArray(new String[0]);
-	  }
-	  
-	  public String getInitialSound(String text) {
-			
-			// 초성 19자
-			final String[] initialChs = {
-				"ㄱ", "ㄲ", "ㄴ", "ㄷ", "ㄸ",
-				"ㄹ", "ㅁ", "ㅂ", "ㅃ", "ㅅ",
-				"ㅆ", "ㅇ", "ㅈ", "ㅉ", "ㅊ",
-				"ㅋ", "ㅌ", "ㅍ", "ㅎ"
-			};
-			
-			// 중성 21자
-			final String[] medialChs = {
-				"ㅏ", "ㅐ", "ㅑ", "ㅒ", "ㅓ",
-				"ㅔ", "ㅕ", "ㅖ", "ㅗ", "ㅘ",
-				"ㅙ", "ㅚ", "ㅛ", "ㅜ", "ㅝ",
-				"ㅞ", "ㅟ", "ㅠ", "ㅡ", "ㅢ",
-				"ㅣ"
-			};
-			
-			// 종성 없는 경우 포함하여 28자
-			final String[] finalChs = {
-				" ", "ㄱ", "ㄲ", "ㄳ", "ㄴ",
-				"ㄵ", "ㄶ", "ㄷ", "ㄹ", "ㄺ",
-				"ㄻ", "ㄼ", "ㄽ", "ㄾ", "ㄿ",
-				"ㅀ", "ㅁ", "ㅂ", "ㅄ", "ㅅ",
-				"ㅆ", "ㅇ", "ㅈ", "ㅊ", "ㅋ",
-				"ㅌ", "ㅍ", "ㅎ"
-			};
-			
-			// 19: 초성
-			// 21: 중성
-			// 28: 종성
-			if (text.length() > 0) {
-				  char chName = text.charAt(0);
-				  if (chName >= 0xAC00 && chName <= 0xD7A3) {  // 0xAC00(가) ~ 0xD7A3(힣)
-						
-						int uniVal = chName - 0xAC00;
-						int initialCh = ((uniVal) / (21 * 28)); // 초성 index
-						System.out.println(initialChs[initialCh]);
-						
-						// 중성
-						int medialCh = ((uniVal % (28 * 21)) / 28);
-						System.out.println(medialChs[medialCh]);
-						
-						// 종성
-						int finalCh = ((uniVal % 28));
-						System.out.println(finalChs[finalCh]);
-						
-						return initialChs[initialCh];
-				  } else {
-						return "" + chName;
-				  }
-			}
-			
-			return "";
 	  }
 	  
 	  @Override

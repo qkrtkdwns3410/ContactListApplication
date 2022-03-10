@@ -130,38 +130,6 @@ public class ContactDetailActivity extends AppCompatActivity implements OnTabIte
 			return null;
 	  }
 	  
-	  private Bitmap GetContactPhoto(String contactID) {
-			
-			Bitmap photo = null;
-			
-			try {
-				  InputStream inputStream = ContactsContract.Contacts.openContactPhotoInputStream(getContentResolver(),
-					  ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, Long.parseLong(contactID)));
-				  
-				  if (inputStream != null) {
-						Logger.d("이미지 인풋이 널이 아님.");
-						photo = BitmapFactory.decodeStream(inputStream);
-						
-						//비트맵의 해상도 조절
-						Bitmap.createScaledBitmap(
-							photo
-							, photo.getWidth() * 2
-							, photo.getHeight() * 2
-							, true);
-						
-				  } else {
-						Logger.d("이미지 인풋이 널임.");
-						return null;
-				  }
-				  inputStream.close();
-				  
-			} catch (IOException e) {
-				  e.printStackTrace();
-			}
-			return photo;
-			
-	  }
-	  
 	  @Override
 	  protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 			super.onActivityResult(requestCode, resultCode, data);
